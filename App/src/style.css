@@ -1,0 +1,16 @@
+body {
+	height: 100vh;
+	margin: 0;
+	background-color: aliceblue;
+	overflow: hidden;
+}
+
+.messageBox {
+	width: 40vh;
+	height: 40vh;
+	border: 2vh solid gray;
+	margin: 2vh;
+	padding: 2vh;
+	background-color: beige;
+	display: block;
+}

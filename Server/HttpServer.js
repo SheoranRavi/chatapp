@@ -6,8 +6,10 @@ app.use(function (req, res, next) {
 	console.log('requested path ' + req.path);
 	next();
 })
-
-app.use(express.static('./../App'));
+const staticDir = path.join(__dirname, '/../App')
+//const staticDir = './../App';
+console.log(staticDir);
+app.use(express.static(staticDir));
 
 app.get('/', function (req, res) {
 	res.send('Hello world');
@@ -18,5 +20,5 @@ var server = app.listen(80, function () {
 	var port = server.address().port;
 
 	console.log("App listening at http://%s:%s", host, port);
-	console.log(app._router.stack);
+	//console.log(app._router.stack);
 })

@@ -1,8 +1,8 @@
 {
-  "name": "chatclient",
+  "name": "chatapp",
   "version": "1.0.0",
-  "description": "Client for chat app",
-  "main": "./src/HttpServer.js",
+  "description": "Chat app with client and serveer",
+  "main": "./Server/HttpServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -7,7 +7,7 @@ function setUsername() {
 	console.log("***SET USERNAME");
 	var msg = {
 		name: document.getElementById("name").value,
-		date = Date.now(),
+		date: Date.now(),
 		id: clientId,
 		type: "username"
 	};
@@ -79,7 +79,7 @@ function connect() {
 function send() {
 	console.log("***SEND");
 	var msg = {
-		text: document.getElementById("text").value;
+		text: document.getElementById("text").value,
 		type: "message",
 		id: clientId,
 		date: Date.now()

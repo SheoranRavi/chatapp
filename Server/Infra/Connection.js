@@ -26,9 +26,9 @@ class ConnectionManager{
 		var connect = null;
 		var i;
 	  
-		for (i=0; i<connectionArray.length; i++) {
-			if (connectionArray[i].clientID === id) {
-				connect = connectionArray[i];
+		for (i=0; i<this.connectionArray.length; i++) {
+			if (this.connectionArray[i].clientID === id) {
+				connect = this.connectionArray[i];
 				break;
 			}
 		}

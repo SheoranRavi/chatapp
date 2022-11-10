@@ -4,8 +4,14 @@
   "description": "Chat app with client and serveer",
   "main": "./Server/HttpServer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm-run-all --parallel start-http-server start-websocket-server",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-http-server": "node Server/HttpServer.js",
+    "start-websocket-server": "node Server/WsServer.js"
   },
   "author": "Ravi Sheoran",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
 }

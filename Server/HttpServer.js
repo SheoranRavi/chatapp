@@ -1,6 +1,7 @@
 var express = require('express');
 const path = require('path');
 var app = express();
+const PORT = process.env.PORT || 5000;
 
 app.use(function (req, res, next) {
 	console.log('requested path ' + req.path);
@@ -15,7 +16,7 @@ app.get('/', function (req, res) {
 	res.send('Hello world');
 })
 
-var server = app.listen(8080, function () {
+var server = app.listen(PORT, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 

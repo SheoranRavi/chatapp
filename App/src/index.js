@@ -11,6 +11,7 @@ function setUsername() {
 		id: clientId,
 		type: "username"
 	};
+	console.log("Sending username to server: " + console.dir(msg));
 	connection.send(JSON.stringify(msg));
 }
 
@@ -58,7 +59,7 @@ function connect() {
 			case "rejectusername":
 				text = "<b>Your username has been set to <em>" + msg.name + "</em> because the name you chose is in use.</b><br>";
 				break;
-			case "userlist":
+			case "userList":
 				var ul = "";
 				var i;
 				for (i = 0; i < msg.users.length; ++i) {

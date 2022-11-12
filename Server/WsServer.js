@@ -27,7 +27,7 @@ Util.Log("***CREATED");
 var nextID = Date.now();
 
 wsServer.on('request', function (request) {
-	Util.Log("Handling request from: ", + request.origin);
+	Util.Log("Handling request from: ", + request.remoteAddress);
 	if (!connectionManager.originIsAllowed(request.origin)) {
 		request.reject();
 		Util.Log("Connection from " + request.origin + " rejected.");
@@ -43,8 +43,10 @@ wsServer.on('request', function (request) {
 
 	var msg = {
 		type: messageType.Id,
-		id: connection.clientID
+		Id: connection.clientID
 	};
+	Util.Log("Message type Id: " + messageType.Id);
+	Util.Log("Sending msg to client: " + JSON.stringify(msg));
 	connection.sendUTF(JSON.stringify(msg));
 
 	connection.on('message', function (message) {

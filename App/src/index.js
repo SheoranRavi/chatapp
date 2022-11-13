@@ -23,7 +23,7 @@ function connect() {
 		scheme += "s";
 	}
 
-	serverUrl = scheme + "://" + document.location.hostname + ":6502";
+	serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
 
 	connection = new WebSocket(serverUrl, "json");
 	console.log("***CREATED WEBSOCKET");

@@ -14,7 +14,6 @@ app.use(function (req, res, next) {
 	next();
 })
 const staticDir = path.join(__dirname, '/../App')
-console.log(staticDir);
 app.use(express.static(staticDir));
 
 const indexPath = path.resolve(path.join(staticDir, INDEX));
@@ -28,13 +27,13 @@ const options = {
 	cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
 };
 
-// var httpServer = http.createServer(app);
-// httpServer.listen(PORT);
-var httpsServer = https.createServer(options, app);
-httpsServer.listen(PORT);
+var httpServer = http.createServer(app);
+httpServer.listen(PORT);
+// var httpsServer = https.createServer(options, app);
+// httpsServer.listen(PORT);
 
-var host = httpsServer.address().address;
-var port = httpsServer.address().port;
-console.log("App listening at https://%s:%s", host, port);
+var host = httpServer.address().address;
+var port = httpServer.address().port;
+console.log("Http Server listening at https://%s:%s", host, port);
 
-module.exports = httpsServer;
+module.exports = httpServer;

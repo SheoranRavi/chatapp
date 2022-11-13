@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 var app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,9 +24,11 @@ const options = {
 	cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
 };
 
-var httpsServer = https.createServer(options, app);
-httpsServer.listen(PORT);
+var httpServer = http.createServer(app);
+//var httpsServer = https.createServer(options, app);
+httpServer.listen(PORT);
+//httpsServer.listen(PORT);
 
-var host = httpsServer.address().address;
-var port = httpsServer.address().port;
+var host = httpServer.address().address;
+var port = httpServer.address().port;
 console.log("App listening at https://%s:%s", host, port);

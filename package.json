@@ -4,10 +4,9 @@
   "description": "Chat app with client and serveer",
   "main": "./Server/HttpServer.js",
   "scripts": {
-    "start": "npm install && npm-run-all --parallel start-http-server start-websocket-server",
+    "start": "npm install && npm-run-all --parallel start-server",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-http-server": "node Server/HttpServer.js",
-    "start-websocket-server": "node Server/WsServer.js"
+    "start-server": "node Server/WsServer.js"
   },
   "author": "Ravi Sheoran",
   "license": "ISC",

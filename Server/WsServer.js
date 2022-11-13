@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const Util = require('./Util');
 const ConnectionManager = require('./Infra/Connection');
+const httpsServer = require('./HttpServer');
 
 const PORT = 6502;
 const appendToMakeUnique = 1;
@@ -14,16 +15,6 @@ const options = {
 	key: fs.readFileSync(path.join(certDir, 'key.pem')),
 	cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
 };
-
-var httpsServer = https.createServer(options, function (req, res) {
-	Util.Log("Received request for " + req.url);
-	res.writeHead(404);
-	res.end();
-})
-
-httpsServer.listen(PORT, function () {
-	Util.Log("The server is listening on port " + PORT);
-})
 
 Util.Log("***CREATING WEBSOCKET SERVER");
 var wsServer = new WebSocketServer({

@@ -4,7 +4,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6502;
 const INDEX = '/public/index.html';
 
 var app = express();

@@ -37,7 +37,7 @@ function connect() {
 
 	connection.onmessage = function (evt) {
 		console.log("***ONMESSAGE");
-		var f = document.getElementById("chatbox").contentDocument;
+		var f = document.getElementById("messageBox").contentDocument;
 		var text = "";
 		var msg = JSON.parse(evt.data);
 		console.log("Message received: ");
@@ -71,7 +71,7 @@ function connect() {
 
 		if (text.length) {
 			f.write(text);
-			document.getElementById("chatbox").contentWindow.scrollByPages(1);
+			document.getElementById("messageBox").contentWindow.scrollByPages(1);
 		}
 	};
 	console.log("***CREATED ONMESSAGE");
@@ -93,6 +93,9 @@ function handleKey(evt) {
 	if (evt.keyCode === 13 || evt.keyCode === 14) {
 		if (!document.getElementById("send").disabled) {
 			send();
+		}
+		else if (connection === null && document.getElementById("name").value != "") {
+			connect();
 		}
 	}
 }

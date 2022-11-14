@@ -10,16 +10,27 @@
 </head>
 <body id="box">
 	<p>Enter a username: 
-		<input id="name" type="text" maxlength="100" placeholder="Your name">
+		<input id="name" type="text" maxlength="100" placeholder="Your name" onkeyup=handleKey(event)>
 		<input type="button" name="login" value="Log in" onclick="connect()">
 	</p>
-	<table id="chattable">
+	<div id="chattable">
+		<div id="userlistbox">
+		</div>
+		<div id="messageBoxContainer">
+			<iframe id="messageBox"></iframe>
+		</div>
+	</div>
+	<div id="textInputContainer">
+		Chat: <input id="text" type="text" name="text" size="80" maxlength="256" placeholder="Chat with us!" autocomplete="off"onkeyup="handleKey(event)" disabled>
+		<input type="button" id="send" name="send" value="Send" onclick="send()" disabled>
+	</div>
+	<!-- <table id="chattable">
 		<tr id="userPlusMessage">
 			<td id="userlistbox">
 				<div id="userlistbox"></div>
 			</td>
 			<td>
-				<iframe class="messageBox"></iframe>
+				<iframe id="messageBox"></iframe>
 				<td>&nbsp;</td>
 			</td>
 			<tr>
@@ -31,6 +42,6 @@
 				</td>
 			</tr>
 		</tr>
-	</table>
+	</table> -->
 </body>
 </html>

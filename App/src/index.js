@@ -16,6 +16,7 @@ function setUsername() {
 }
 
 function connect() {
+	document.getElementById('loginbtn').disabled = true;
 	var serverUrl;
 	var scheme = "ws";
 
@@ -60,18 +61,24 @@ function connect() {
 				text = "<b>Your username has been set to <em>" + msg.name + "</em> because the name you chose is in use.</b><br>";
 				break;
 			case "userList":
-				var ul = "";
 				var i;
+				var listBox = document.getElementById("userlistbox");
+				listBox.innerHTML = '';
+				const att = document.createAttribute("class");
+				att.value = "list-group-item";
 				for (i = 0; i < msg.users.length; ++i) {
-					ul += msg.users[i] + "<br>";
+					var ul = document.createElement("li");
+					var textNode = document.createTextNode(msg.users[i]);
+					ul.setAttributeNode(att.cloneNode());
+					ul.appendChild(textNode);
+					listBox.appendChild(ul);
 				}
-				document.getElementById("userlistbox").innerHTML = ul;
 				break;
 		}
 
 		if (text.length) {
 			f.write(text);
-			document.getElementById("messageBox").contentWindow.scrollByPages(1);
+			document.getElementById("messageBox").contentWindow.scrollBy(0,100);
 		}
 	};
 	console.log("***CREATED ONMESSAGE");
@@ -91,7 +98,7 @@ function send() {
 
 function handleKey(evt) {
 	if (evt.keyCode === 13 || evt.keyCode === 14) {
-		if (!document.getElementById("send").disabled) {
+		if (!document.getElementById("send").disabled && document.getElementById("text").value != "") {
 			send();
 		}
 		else if (connection === null && document.getElementById("name").value != "") {

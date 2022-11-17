@@ -8,7 +8,7 @@ const ConnectionManager = require('./Infra/Connection');
 const httpsServer = require('./HttpServer');
 
 const PORT = 6502;
-const appendToMakeUnique = 1;
+var appendToMakeUnique = 1;
 const connectionManager = new ConnectionManager();
 const certDir = path.join(__dirname, '/../test_cert/');
 const options = {

@@ -1,8 +1,14 @@
 body {
+	position: absolute;
 	height: 100%;
+	width: 100%;
 	margin: 0;
 	background-color: aliceblue;
-	overflow: hidden;
+}
+
+html {
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 
 #messageBox {
@@ -13,25 +19,4 @@ body {
 	padding: 2%;
 	background-color: burlywood;
 	display: block;
-}
-
-#userPlusMessage {
-	width: 100%;
-	height: 100%;
-}
-
-#chattable {
-	border: 10% solid gray;
-	margin: 1%;
-	width: 90%;
-	height: 100%;
-	background-color: whitesmoke;
-}
-
-#userlistbox {
-	border: 10% solid black; 
-	box-shadow: 2% 2% 2%;
-	width:40%; 
-	height:100%;
-	text-decoration-color: coral;
 }

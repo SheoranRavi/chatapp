@@ -20,3 +20,42 @@ html {
 	background-color: burlywood;
 	display: block;
 }
+
+.clock {
+	font-family: sans-serif;
+	font-size: 30px;
+	color: #333;
+}
+
+.login-button {
+	font-family: sans-serif;
+	font-size: 14px;
+	color: #333;
+	background-color: #fff;
+	padding: 10px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+.login-button:hover {
+	cursor: pointer;
+	background-color: #f5f5f5;
+}
+
+.chat-dialogue {
+	width: 300px;
+	height: 200px;
+	overflow-y: scroll;
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+.chat-message {
+	margin: 10px 0;
+}
+
+.message-text {
+	font-family: sans-serif;
+	font-size: 14px;
+	color: #333;
+}

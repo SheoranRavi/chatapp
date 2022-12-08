@@ -59,3 +59,10 @@ html {
 	font-size: 14px;
 	color: #333;
 }
+
+input {
+    width: '100%';
+    padding: '12% 20%';
+    margin: '8%';
+    outline: 'none'
+  }

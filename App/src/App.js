@@ -1,7 +1,8 @@
 import React from 'react';
-import './LoginButton';
-import './TickingClock';
-import ChatBox from './ChatBox';
+import LoginButton from './Components/LoginButton';
+import TickingClock from './Components/TickingClock';
+import Input from './Components/Input';
+import ChatApp from './Components/ChatApp/ChatApp';
 
 
 // function App that renders a login button and a ticking clock
@@ -10,8 +11,11 @@ function App() {
 		<div>
 			<LoginButton />
 			<TickingClock />
-			<ChatBox />
+			<Input />
+			<ChatApp />
 		</div>
 	);
 }
 
+//default export
+export default App;

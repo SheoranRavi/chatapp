@@ -1,0 +1,7 @@
+.chat-app {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+	background-color: #f5f5f5;
+}

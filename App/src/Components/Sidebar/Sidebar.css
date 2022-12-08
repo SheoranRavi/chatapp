@@ -1,0 +1,19 @@
+.sidebar {
+	width: 20%;
+	padding: 5%;
+	background-color: #eee;
+	border-radius: 5px;
+}
+
+.sidebar h2 {
+	margin-top: 10%;
+}
+
+.sidebar ul {
+	list-style: none;
+	padding: 0;
+}
+
+.sidebar li {
+	margin-bottom: 10px;
+}

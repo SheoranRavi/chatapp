@@ -1,8 +1,8 @@
 import React from 'react';
-import ChatHeader from '../ChatHeader/ChatHeader';
 import ChatMessages from '../ChatMessages/ChatMessages';
 import ChatInput from '../ChatInput/ChatInput';
 import Sidebar from '../Sidebar/Sidebar';
+import DialogueBox from '../DialogueBox/DialogueBox';
 import './ChatApp.css';
 
 class ChatApp extends React.Component {
@@ -30,11 +30,12 @@ class ChatApp extends React.Component {
 			{ id: 1, name: 'Ravi' },
 			{ id: 2, name: 'Nalisha' },
 			{ id: 3, name: 'Vishal' },
+			{ id: 4, name: 'Some very long name' }
 		];
 		return (
 			<div className="chat-app">
-				<ChatHeader />
 				<Sidebar activeUsers={users} />
+				<DialogueBox />
 				<ChatMessages messages={this.state.messages} />
 				<ChatInput onSubmit={this.handleSubmit} />
 			</div>

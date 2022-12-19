@@ -1,8 +1,9 @@
-.sidebar {
-	width: 20%;
+/* .sidebar {
+	width: 30%;
 	padding: 5%;
 	background-color: #eee;
 	border-radius: 5px;
+	transform: scale(1);
 }
 
 .sidebar h2 {
@@ -16,4 +17,18 @@
 
 .sidebar li {
 	margin-bottom: 10px;
+} */
+
+@media (min-width: 768px) {
+	.sidebar {
+		width: 25%;
+		padding-bottom: 0;
+	}
+}
+
+@media (max-width: 767px) {
+	.sidebar {
+		width: 50%;
+		padding-bottom: 0;
+	}
 }

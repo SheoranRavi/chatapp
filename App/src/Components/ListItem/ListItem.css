@@ -1,7 +1,25 @@
 .dot {
-	color: red;
+	color: green;
+	font-size: 30px;
+	display: inline;
+	position: absolute;
+	right: 10%;
+	bottom: 0%;
 }
 
 .user-list-item {
 	cursor: pointer;
+	border: 1px solid blue;
+	outline: 0;
+	position: relative;
+
+	/* card styles */
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+	margin: 5px;
+	background-color: white;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }

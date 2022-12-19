@@ -21,8 +21,7 @@ class ListItem extends React.Component {
 
 		return (
 			<li className="user-list-item" onClick={this.handleClick}>
-				{user.name}
-				{active && <span className="dot">&bull;</span>}
+				{user.name} {active && <span className="dot">&bull;</span>}
 			</li>
 		);
 	}

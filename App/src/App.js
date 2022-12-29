@@ -11,7 +11,7 @@ function App() {
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<SignUp />} />
-				<Route path="/chat" element={<ChatApp />} />
+				<Route path="/chat" element={<ChatApp connection={null} />} />
 			</Routes>
 		</BrowserRouter>
 	);

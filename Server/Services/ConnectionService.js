@@ -1,10 +1,11 @@
 const { connection } = require("websocket");
 const Util = require("../Util");
-const messageType = require("./MessageType");
+const messageType = require("../Model/MessageType");
 
 class ConnectionManager{
-	constructor() {
+	constructor(usersRepository) {
 		this.connectionArray = [];
+		this.usersRepository = usersRepository;
 	}
 
 	addConnection(connection) {

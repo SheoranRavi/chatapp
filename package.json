@@ -2,12 +2,13 @@
   "name": "chatapp",
   "version": "1.0.0",
   "description": "Chat app with client and serveer",
-  "main": "./Server/HttpServer.js",
+  "main": "./Server/App.js",
+  "type": "module",
   "scripts": {
     "start": "npm install && npm-run-all --parallel start-webpack start-server",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-webpack": "npx webpack --watch",
-    "start-server": "node Server/WsServer.js"
+    "start-server": "node Server/App.js"
   },
   "author": "Ravi Sheoran",
   "license": "ISC",

@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import TickingClock from './Components/TickingClock';
-import ChatApp from './Components/ChatApp/ChatApp';
-import SignUp from './Pages/SignUp';
+import TickingClock from './Components/TickingClock.js';
+import ChatApp from './Components/ChatApp/ChatApp.js';
+import SignUp from './Pages/SignUp.js';
 
 
 // function App that renders a login button and a ticking clock

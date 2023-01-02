@@ -1,4 +1,4 @@
-import { ChatAppController } from '../controllers/ChatAppController';
+import { ChatAppController } from '../controllers/ChatAppController.js';
 
 export class Routes{
 	constructor(app) {

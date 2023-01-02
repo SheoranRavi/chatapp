@@ -1,8 +1,8 @@
 import React from 'react';
-import ChatMessages from '../ChatMessages/ChatMessages';
-import ChatInput from '../ChatInput/ChatInput';
-import Sidebar from '../Sidebar/Sidebar';
-import DialogueBox from '../DialogueBox/DialogueBox';
+import ChatMessages from '../ChatMessages/ChatMessages.js';
+import ChatInput from '../ChatInput/ChatInput.js';
+import Sidebar from '../Sidebar/Sidebar.js';
+import DialogueBox from '../DialogueBox/DialogueBox.js';
 import './ChatApp.css';
 
 class ChatApp extends React.Component {
@@ -12,7 +12,9 @@ class ChatApp extends React.Component {
 		console.log("ChatApp props: ", props);
 		this.state = {
 			messages: [],
+			userId: props.userId
 		};
+		this.connection = null;
 		this.state.users = [
 			{ id: 1, name: 'Ravi' },
 			{ id: 2, name: 'Nalisha' },
@@ -61,7 +63,20 @@ class ChatApp extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.connection.onmessage = function (evt) {
+		var serverUrl;
+		var scheme = "ws";
+
+		if (document.location.protocol === "https:") {
+			scheme += "s";
+		}
+
+		serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
+		var queryParams = 'userId=' + this.state.userId;
+		serverUrl += "?" + queryParams;
+		this.connection = new WebSocket(serverUrl, "json");
+		console.log("***CREATED WEBSOCKET");
+
+		this.connection.onmessage = function (evt) {
 			console.log("***ONMESSAGE");
 			var text = "";
 			var msg = JSON.parse(evt.data);

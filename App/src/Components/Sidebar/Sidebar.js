@@ -1,5 +1,5 @@
 import React from "react";
-import ListItem from "../ListItem/ListItem";
+import ListItem from "../ListItem/ListItem.js";
 import "./Sidebar.css";
 
 class Sidebar extends React.Component {

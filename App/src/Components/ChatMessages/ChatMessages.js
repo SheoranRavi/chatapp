@@ -1,5 +1,5 @@
 import React from 'react';
-import ChatMessage from '../ChatMessage/ChatMessage';
+import ChatMessage from '../ChatMessage/ChatMessage.js';
 import './ChatMessages.css';
 
 class ChatMessages extends React.Component {

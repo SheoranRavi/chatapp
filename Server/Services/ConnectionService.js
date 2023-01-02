@@ -1,8 +1,7 @@
-const { connection } = require("websocket");
-const Util = require("../Util");
-const messageType = require("../Model/MessageType");
+import * as Util from "../Util.js";
+import * as messageType from "../Model/MessageType.js";
 
-class ConnectionManager{
+export class ConnectionManager{
 	constructor(usersRepository) {
 		this.connectionArray = [];
 		this.usersRepository = usersRepository;
@@ -77,5 +76,3 @@ class ConnectionManager{
 		})
 	}
 }
-
-module.exports = ConnectionManager;

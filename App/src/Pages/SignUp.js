@@ -1,7 +1,7 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { withRouter } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify'
 import ChatApp from '../Components/ChatApp/ChatApp.js';
+import "react-toastify/dist/ReactToastify.css";
 import './SignUp.css';
 
 class SignUp extends React.Component {
@@ -41,22 +41,32 @@ class SignUp extends React.Component {
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", loginRequest);
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.onload = function(){
+		xhr.onload = function () {
 			console.log("Login response: " + xhr.responseText);
+			console.log("xhr.status: " + xhr.status);
 			if (xhr.status === 200) {
 				var response = JSON.parse(xhr.responseText);
 				var loginSuccess = response.success;
+				console.dir(response);
+				console.log(loginSuccess);
+				console.log(response.success);
+				console.log(response['success']);
 				if (loginSuccess) {
 					console.log("Login successful");
 					this.setState({
 						usernameUnique: true,
-						userId: response.user.userId,
+						userId: response.user.id,
 						isLoggedIn: true
 					});
 				}
 				else {
 					console.log("Login failed");
 					this.setState({ usernameUnique: false });
+					toast('Username already exists, pick different username');
+					console.log('Login response: ' + response);
+					if (response.message) {
+						toast(response.message);
+					}
 				}
 			}
 			else {
@@ -64,26 +74,21 @@ class SignUp extends React.Component {
 				this.setState({ errorInLoginRequest: true });
 			}
 		}
+		xhr.onload = xhr.onload.bind(this);
 		xhr.send(JSON.stringify({ username: this.state.username }));
 
 	}
 
 	render() {
 		if (this.state.isLoggedIn) {
-			return <ChatApp username={this.state.username} userId={ this.state.userId}  />
+			return <ChatApp username={this.state.username} userId={this.state.userId} />
 		}
 		return (
 			<div>
 				<div>
 					<input id='username' className="username-input" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} />
 				</div>
-				{!this.state.usernameUnique && 
-					<p className="username-unique">Username is not unique, please pick a different username</p>
-				}
-				{
-					this.state.errorInLoginRequest &&
-					<p>The login request failed, something wrong with the server</p>
-				}
+				<ToastContainer />
 				<button className="login-button" onClick={() => this.handleClick()}>
 					{this.state.isLoggedIn ? 'Log Out' : 'Log In'}
 				</button>

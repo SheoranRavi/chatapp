@@ -8,6 +8,8 @@ import express from 'express';
 export class ChatAppController{
 	constructor() {
 		this.usersRepository = new UsersRepository();
+		this.login = this.login.bind(this);
+		this.getRoot = this.getRoot.bind(this);
 	}
 	
 	login(req, res) {
@@ -19,12 +21,13 @@ export class ChatAppController{
 			const user = new User(null, req.body.username);
 			const success = this.usersRepository.addUser(user);
 			const response = new loginResponse(success, null, user);
-			res.send(response);
+			console.log('login response: ' + JSON.stringify(response));
+			res.json(response);
 		}
 		catch (e) {
 			console.log('error in login: ' + e);
 			const response = new loginResponse(false, e, null);
-			res.send(response);
+			res.json(response);
 		}
 	}
 	

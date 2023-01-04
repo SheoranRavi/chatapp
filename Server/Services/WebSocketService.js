@@ -1,13 +1,21 @@
 import { server as WebSocketServer } from 'websocket';
 import { ConnectionManager } from './ConnectionService.js';
+import { messageType } from '../Model/MessageType.js';
 import * as Util from '../Util.js';
 export class WebSocketService {
 	constructor(httpServer) {
 		this.httpServer = httpServer;
+		this.connectionManager = new ConnectionManager();
+		this.parseQueryParams = this.parseQueryParams.bind(this);
+		this.onMessage = this.onMessage.bind(this);
+		this.onClose = this.onClose.bind(this);
+		this.onRequest = this.onRequest.bind(this);
+		this.setupWebSocketServer = this.setupWebSocketServer.bind(this);
 		this.setupWebSocketServer();
 	}
 
 	parseQueryParams(queryString) {
+		console.log('typeof queryString: ' + typeof (queryString));
 		var vars = queryString.split('&');
 		var params = {};
 		for (var i = 0; i < vars.length; i++) {
@@ -24,8 +32,8 @@ export class WebSocketService {
 
 			// Process message
 			var sendToClients = true;
-			msg = JSON.parse(message.utf8Data);
-			var connect = connectionManager.getConnectionForID(msg.id);
+			const msg = JSON.parse(message.utf8Data);
+			var connect = this.connectionManager.getConnectionForID(msg.id);
 
 			// Handle message according to its type
 			switch (msg.type) {
@@ -38,7 +46,7 @@ export class WebSocketService {
 					var origName = msg.name;
 					// Force a unique username by appending
 					// increasing digits until it's unique.
-					while (!connectionManager.isUsernameUnique(msg.name)) {
+					while (!this.connectionManager.isUsernameUnique(msg.name)) {
 						msg.name = origName + appendToMakeUnique;
 						appendToMakeUnique++;
 						nameChanged = true;
@@ -54,50 +62,55 @@ export class WebSocketService {
 					}
 
 					connect.username = msg.name;
-					connectionManager.sendUserListToAll();
+					this.connectionManager.sendUserListToAll();
 					break;
 			}
 
 			if (sendToClients) {
 				var msgString = JSON.stringify(msg);
-				connectionManager.sendToAllClients(msgString);
+				this.connectionManager.sendToAllClients(msgString);
 			}
 		}
 	}
 
 	onClose() {
 		Util.Log("***CLOSE");
-		connectionManager.updateConnections();
-		connectionManager.sendUserListToAll();
-		Util.Log("Peer " + connection.remoteAddress + " disconnected.");
+		this.connectionManager.updateConnections();
+		this.connectionManager.sendUserListToAll();
 	}
 
 	onRequest(request) {
-		Util.Log("Handling request from: ", + request.remoteAddress);
-		if (!connectionManager.originIsAllowed(request.origin)) {
-			request.reject();
-			Util.Log("Connection from " + request.origin + " rejected.");
-			return;
+		try {
+			Util.Log("Handling request from: ", + request.remoteAddress);
+			if (!this.connectionManager.originIsAllowed(request.origin)) {
+				request.reject();
+				Util.Log("Connection from " + request.origin + " rejected.");
+				return;
+			}
+			var resourceUrl = request.resourceURL;
+			console.log('request: ');
+			console.dir(request);
+			var queryParams = resourceUrl.query;
+			if (queryParams.userId === null) {
+				request.reject();
+				Util.Log("Connection from " + request.origin + " rejected.");
+				return;
+			}
+			var connection = request.accept("json", request.origin);
+			connection.clientID = queryParams.userId;
+			Util.Log("Connection Accepted");
+			this.connectionManager.addConnection(connection);
+			this.connectionManager.sendUserListToAll();
+			connection.on('message', this.onMessage);
+			connection.on('close', this.onClose);
 		}
-		var resourceUrl = request.resourceURL;
-		var queryParams = this.parseQueryParams(resourceUrl.query);
-		if (queryParams.userId === null) {
-			request.reject();
-			Util.Log("Connection from " + request.origin + " rejected.");
-			return;
+		catch (e) {
+			Util.Log("Error: " + e);
 		}
-		var connection = request.accept("json", request.origin);
-		connection.clientID = queryParams.userId;
-		Util.Log("Connection Accepted");
-		connectionManager.addConnection(connection);
-		connectionManager.sendUserListToAll();
-		connection.on('message', onMessage);
-		connection.on('close', onClose);
 	}
 
 	setupWebSocketServer() {
 		var appendToMakeUnique = 1;
-		const connectionManager = new ConnectionManager();
 
 		Util.Log("***CREATING WEBSOCKET SERVER");
 		var wsServer = new WebSocketServer({

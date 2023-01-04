@@ -21,18 +21,21 @@ class ChatApp extends React.Component {
 			{ id: 3, name: 'Vishal' },
 			{ id: 4, name: 'Some very long name' }
 		];
+		this.send = this.send.bind(this);
+		this.setUsername = this.setUsername.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.componentDidMount = this.componentDidMount.bind(this);
 	}
 
-	send() {
+	send(text) {
 		console.log("***SEND");
 		var msg = {
-			text: document.getElementById("text").value,
+			text: text,
 			type: "message",
-			id: clientId,
+			id: this.state.userId,
 			date: Date.now()
 		};
-		connection.send(JSON.stringify(msg));
-		document.getElementById("text").value = "";
+		this.connection.send(JSON.stringify(msg));
 	}
 
 	handleSubmit = event => {
@@ -43,7 +46,7 @@ class ChatApp extends React.Component {
 
 		// Clear the input field
 		input.value = '';
-		this.send();
+		this.send(text);
 		// Add the message to the array of messages
 		this.setState(prevState => ({
 			messages: [...prevState.messages, { id: Date.now(), text, sender: 'Me' }],
@@ -59,10 +62,12 @@ class ChatApp extends React.Component {
 			type: "username"
 		};
 		console.log("Sending username to server: " + console.dir(msg));
-		connection.send(JSON.stringify(msg));
+		this.connection.send(JSON.stringify(msg));
 	}
 
 	componentDidMount() {
+		if (this.connection != null)
+			return;
 		var serverUrl;
 		var scheme = "ws";
 
@@ -117,7 +122,7 @@ class ChatApp extends React.Component {
 		};
 		console.log("***CREATED ONMESSAGE");
 
-		this.props.connection.onopen = function (evt) {
+		this.connection.onopen = function (evt) {
 			console.log("***ONOPEN");
 		};
 		console.log("***CREATED ONOPEN");

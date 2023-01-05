@@ -27,49 +27,54 @@ export class WebSocketService {
 
 	onMessage(message) {
 		Util.Log("***MESSAGE");
-		if (message.type === 'utf8') {
-			Util.Log("Received message: " + message.utf8Data);
+		try {
+			if (message.type === 'utf8') {
+				Util.Log("Received message: " + message.utf8Data);
 
-			// Process message
-			var sendToClients = true;
-			const msg = JSON.parse(message.utf8Data);
-			var connect = this.connectionManager.getConnectionForID(msg.id);
+				// Process message
+				var sendToClients = true;
+				const msg = JSON.parse(message.utf8Data);
+				var connect = this.connectionManager.getConnectionForID(msg.id);
 
-			// Handle message according to its type
-			switch (msg.type) {
-				case messageType.Message:
-					msg.name = connect.username;
-					msg.text = msg.text.replace(/(<([^>]+)>)/ig, "");
-					break;
-				case messageType.Username:
-					var nameChanged = false;
-					var origName = msg.name;
-					// Force a unique username by appending
-					// increasing digits until it's unique.
-					while (!this.connectionManager.isUsernameUnique(msg.name)) {
-						msg.name = origName + appendToMakeUnique;
-						appendToMakeUnique++;
-						nameChanged = true;
-					}
+				// Handle message according to its type
+				switch (msg.type) {
+					case messageType.Message:
+						msg.name = connect.username;
+						msg.text = msg.text.replace(/(<([^>]+)>)/ig, "");
+						break;
+					case messageType.Username:
+						var nameChanged = false;
+						var origName = msg.name;
+						// Force a unique username by appending
+						// increasing digits until it's unique.
+						while (!this.connectionManager.isUsernameUnique(msg.name)) {
+							msg.name = origName + appendToMakeUnique;
+							appendToMakeUnique++;
+							nameChanged = true;
+						}
 
-					if (nameChanged) {
-						var changeMsg = {
-							id: msg.id,
-							type: messageType.RejectUsername,
-							name: msg.name
-						};
-						connect.sendUTF(JSON.stringify(changeMsg));
-					}
+						if (nameChanged) {
+							var changeMsg = {
+								id: msg.id,
+								type: messageType.RejectUsername,
+								name: msg.name
+							};
+							connect.sendUTF(JSON.stringify(changeMsg));
+						}
 
-					connect.username = msg.name;
-					this.connectionManager.sendUserListToAll();
-					break;
+						connect.username = msg.name;
+						this.connectionManager.sendUserListToAll();
+						break;
+				}
+
+				if (sendToClients) {
+					var msgString = JSON.stringify(msg);
+					this.connectionManager.sendToAllClients(msgString);
+				}
 			}
-
-			if (sendToClients) {
-				var msgString = JSON.stringify(msg);
-				this.connectionManager.sendToAllClients(msgString);
-			}
+		}
+		catch (e) {
+			Util.Log("onMessage Error: " + e);
 		}
 	}
 
@@ -88,16 +93,17 @@ export class WebSocketService {
 				return;
 			}
 			var resourceUrl = request.resourceURL;
-			console.log('request: ');
-			console.dir(request);
+			// console.log('request: ');
+			// console.dir(request);
 			var queryParams = resourceUrl.query;
-			if (queryParams.userId === null) {
+			if (queryParams.userId === null || queryParams.username === null) {
 				request.reject();
 				Util.Log("Connection from " + request.origin + " rejected.");
 				return;
 			}
 			var connection = request.accept("json", request.origin);
 			connection.clientID = queryParams.userId;
+			connection.username = queryParams.username;
 			Util.Log("Connection Accepted");
 			this.connectionManager.addConnection(connection);
 			this.connectionManager.sendUserListToAll();

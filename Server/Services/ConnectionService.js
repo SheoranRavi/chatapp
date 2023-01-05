@@ -1,14 +1,24 @@
 import * as Util from "../Util.js";
-import * as messageType from "../Model/MessageType.js";
+import { messageType } from "../Model/MessageType.js";
 
 export class ConnectionManager{
 	constructor(usersRepository) {
 		this.connectionArray = [];
 		this.usersRepository = usersRepository;
+		this.addConnection = this.addConnection.bind(this);
+		this.isUsernameUnique = this.isUsernameUnique.bind(this);
+		this.getConnectionForID = this.getConnectionForID.bind(this);
+		this.originIsAllowed = this.originIsAllowed.bind(this);
+		this.makeUserListMessage = this.makeUserListMessage.bind(this);
+		this.sendToAllClients = this.sendToAllClients.bind(this);
+		this.updateConnections = this.updateConnections.bind(this);
 	}
 
 	addConnection(connection) {
+		console.log('adding connection to collection:');
+		console.dir(connection);
 		this.connectionArray.push(connection);
+		console.log('length of connectionArray: ' + this.connectionArray.length);
 	}
 
 	isUsernameUnique(username) {
@@ -26,9 +36,15 @@ export class ConnectionManager{
 	getConnectionForID(id) {
 		var connect = null;
 		var i;
+		console.log('length of connectionArray: ' + this.connectionArray.length);
+		console.log('looking for connection with id: ' + id);
+		console.log('typeof id: ' + typeof (id));
 	  
-		for (i=0; i<this.connectionArray.length; i++) {
-			if (this.connectionArray[i].clientID === id) {
+		for (i = 0; i < this.connectionArray.length; i++) {
+			console.log('connection ID current: ' + this.connectionArray[i].clientID);
+			console.log('typeof connection ID current: ' + typeof (this.connectionArray[i].clientID));
+
+			if (this.connectionArray[i].clientID == id) {
 				connect = this.connectionArray[i];
 				break;
 			}
@@ -45,6 +61,7 @@ export class ConnectionManager{
 			type: messageType.UserList,
 			users: []
 		};
+		console.log(messageType.UserList);
 		var i;
 		// add users to the list
 		for (i = 0; i < this.connectionArray.length; i++){
@@ -58,6 +75,7 @@ export class ConnectionManager{
 		var userListMessageString = JSON.stringify(userListMessage);
 		var i;
 		Util.Log("Sending user list to all clients");
+		console.dir(userListMessageString);
 		for (i = 0; i < this.connectionArray.length; i++){
 			this.connectionArray[i].sendUTF(userListMessageString);
 		}

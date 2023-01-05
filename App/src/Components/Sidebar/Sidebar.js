@@ -3,11 +3,13 @@ import ListItem from "../ListItem/ListItem.js";
 import "./Sidebar.css";
 
 class Sidebar extends React.Component {
+	constructor(props) {
+		super(props);
+	}
 	render() {
-		const { activeUsers } = this.props;
-
-		const activeUsersList = activeUsers.map(user => (
-			<ListItem key={user.id} user={user} />
+		console.log("render called in Sidebar.js");
+		const activeUsersList = this.props.activeUsers.map((user, index) => (
+			<ListItem key={index} user={user} />
 		));
 
 		return (

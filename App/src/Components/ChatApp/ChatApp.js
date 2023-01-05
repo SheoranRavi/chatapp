@@ -12,15 +12,16 @@ class ChatApp extends React.Component {
 		console.log("ChatApp props: ", props);
 		this.state = {
 			messages: [],
-			userId: props.userId
+			userId: props.userId,
+			users: []
 		};
 		this.connection = null;
-		this.state.users = [
-			{ id: 1, name: 'Ravi' },
-			{ id: 2, name: 'Nalisha' },
-			{ id: 3, name: 'Vishal' },
-			{ id: 4, name: 'Some very long name' }
-		];
+		// this.state.users = [
+		// 	// { id: 1, name: 'Ravi' },
+		// 	// { id: 2, name: 'Nalisha' },
+		// 	// { id: 3, name: 'Vishal' },
+		// 	// { id: 4, name: 'Some very long name' }
+		// ];
 		this.send = this.send.bind(this);
 		this.setUsername = this.setUsername.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,6 +34,7 @@ class ChatApp extends React.Component {
 			text: text,
 			type: "message",
 			id: this.state.userId,
+			username: this.props.username,
 			date: Date.now()
 		};
 		this.connection.send(JSON.stringify(msg));
@@ -47,10 +49,6 @@ class ChatApp extends React.Component {
 		// Clear the input field
 		input.value = '';
 		this.send(text);
-		// Add the message to the array of messages
-		this.setState(prevState => ({
-			messages: [...prevState.messages, { id: Date.now(), text, sender: 'Me' }],
-		}));
 	};
 
 	setUsername() {
@@ -76,50 +74,49 @@ class ChatApp extends React.Component {
 		}
 
 		serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
-		var queryParams = 'userId=' + this.state.userId;
+		var queryParams = 'userId=' + this.state.userId + '&username=' + this.props.username;
 		serverUrl += "?" + queryParams;
 		this.connection = new WebSocket(serverUrl, "json");
 		console.log("***CREATED WEBSOCKET");
 
 		this.connection.onmessage = function (evt) {
 			console.log("***ONMESSAGE");
-			var text = "";
 			var msg = JSON.parse(evt.data);
 			console.log("Message received: ");
 			console.dir(msg);
 			var time = new Date(msg.date);
 			var timeStr = time.toLocaleTimeString();
+			var message = {};
 
 			switch (msg.type) {
-				case "id":
-					clientId = msg.Id;
-					this.setUsername();
-					break;
-				case "username":
-					text = "<b>User <em>" + msg.name + "</em> signed in at " + timeStr + "</b><br>";
-					break;
 				case "message":
-					text = "(" + timeStr + ") <b>" + msg.name + "</b>: " + msg.text + "<br>";
-					break;
-				case "rejectusername":
-					text = "<b>Your username has been set to <em>" + msg.name + "</em> because the name you chose is in use.</b><br>";
+					message.id = Date.now();
+					message.time = timeStr;
+					message.text = msg.text;
+					message.sender = msg.name;
 					break;
 				case "userList":
 					var i;
 					for (i = 0; i < msg.users.length; ++i) {
+						const user = {
+							id: this.state.users.length + 1,
+							name: msg.users[i]
+						};
 						this.setState(prevState => ({
-							users: [...prevState.users, { id: this.state.users.length + 1, name: msg.users[i] }]
+							users: [...prevState.users, user]
 						}));
 					}
 					break;
 			}
-
-			if (text.length) {
+			console.log("ChatApp Message: " + message.text);
+			if (message.text) {
+				console.log("updating state in ChatApp");
 				this.setState(prevState => ({
-					messages: [...prevState.messages, { id: Date.now(), text, sender: msg.name }]
+					messages: [...prevState.messages, message]
 				}));
 			}
 		};
+		this.connection.onmessage = this.connection.onmessage.bind(this);
 		console.log("***CREATED ONMESSAGE");
 
 		this.connection.onopen = function (evt) {
@@ -133,8 +130,7 @@ class ChatApp extends React.Component {
 		return (
 			<div className="chat-app">
 				<Sidebar activeUsers={this.state.users} />
-				<DialogueBox />
-				<ChatMessages messages={this.state.messages} />
+				<DialogueBox messages={this.state.messages} />
 				<ChatInput onSubmit={this.handleSubmit} />
 			</div>
 		);

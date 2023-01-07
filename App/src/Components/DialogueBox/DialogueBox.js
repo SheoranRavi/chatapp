@@ -4,24 +4,39 @@ import "./DialogueBox.css";
 class DialogueBox extends React.Component {
 	constructor(props) {
 		super(props);
+		this.messageEndRef = React.createRef();
+	}
+
+	scrollToBottom = () => {
+		this.messageEndRef.current.scrollIntoView({ behavior: 'smooth' })
+	}
+
+	componentDidMount() {
+		this.scrollToBottom();
+	}
+
+	componentDidUpdate() {
+		this.scrollToBottom();
 	}
 
 	render() {
-		console.log("render called in DialogueBox.js");
+		const messageBase = "message"
+		const receivedMessage = messageBase + " received-message";
+		const sentMessage = messageBase + " sent-message";
 		return (
 			<div className="dialogue-box">
-				<div className="messages-container">
-					{/* Map through the messages array and create a div element for each message */}
 					{this.props.messages.map((message, index) => {
+						// If the message is from the current user, add the 'messageThis' class to the message div
+						message.className = message.userId == this.props.userId ? sentMessage : receivedMessage;
 						return (
-							<div className="message" key={index}>
-								<div className="message-time">{message.time}</div>
-								<div className="message-text">{message.text}</div>
+							<div className={ message.className} key={index}>
 								<div className="sender-name">{message.sender}</div>
+								<div className="message-text">{message.text}</div>
+								<div className="message-time">{message.time}</div>
 							</div>
 						);
 					})}
-				</div>
+				<div ref={this.messageEndRef} />
 			</div>
 		);
 	}

@@ -7,14 +7,13 @@ class Sidebar extends React.Component {
 		super(props);
 	}
 	render() {
-		console.log("render called in Sidebar.js");
 		const activeUsersList = this.props.activeUsers.map((user, index) => (
 			<ListItem key={index} user={user} />
 		));
 
 		return (
 			<aside className="sidebar">
-				<h2>Active Users</h2>
+				<h2 className="sidebar-header">Active Users</h2>
 				<ul>
 					{activeUsersList}
 				</ul>

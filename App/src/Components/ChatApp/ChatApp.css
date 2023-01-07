@@ -6,3 +6,10 @@
 	background-color: #f5f5f5;
 	transform: scale(1);
 }
+
+.row-users-messages {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	width: 100%;
+}

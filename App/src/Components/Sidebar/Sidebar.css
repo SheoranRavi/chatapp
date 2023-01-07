@@ -21,14 +21,24 @@
 
 @media (min-width: 768px) {
 	.sidebar {
+		background-color: rgb(241, 241, 233);
 		width: 25%;
 		padding-bottom: 0;
+		padding-left: 2%;
+		padding-top: 2%;
 	}
 }
 
 @media (max-width: 767px) {
 	.sidebar {
+		background-color: darkkhaki;
 		width: 50%;
 		padding-bottom: 0;
+		padding-left: 2%;
+		padding-top: 2%;
 	}
+}
+
+.sidebar-header{
+	padding-left: 20%;
 }

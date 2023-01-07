@@ -6,13 +6,12 @@ import DialogueBox from '../DialogueBox/DialogueBox.js';
 import './ChatApp.css';
 
 class ChatApp extends React.Component {
-	
+
 	constructor(props) {
 		super(props);
 		console.log("ChatApp props: ", props);
 		this.state = {
 			messages: [],
-			userId: props.userId,
 			users: []
 		};
 		this.connection = null;
@@ -30,10 +29,11 @@ class ChatApp extends React.Component {
 
 	send(text) {
 		console.log("***SEND");
+		console.log("Sending message to server with userId: " + this.props.userId);
 		var msg = {
 			text: text,
 			type: "message",
-			id: this.state.userId,
+			id: this.props.userId,
 			username: this.props.username,
 			date: Date.now()
 		};
@@ -74,7 +74,7 @@ class ChatApp extends React.Component {
 		}
 
 		serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
-		var queryParams = 'userId=' + this.state.userId + '&username=' + this.props.username;
+		var queryParams = 'userId=' + this.props.userId + '&username=' + this.props.username;
 		serverUrl += "?" + queryParams;
 		this.connection = new WebSocket(serverUrl, "json");
 		console.log("***CREATED WEBSOCKET");
@@ -91,26 +91,25 @@ class ChatApp extends React.Component {
 			switch (msg.type) {
 				case "message":
 					message.id = Date.now();
+					message.userId = msg.id;
 					message.time = timeStr;
 					message.text = msg.text;
 					message.sender = msg.name;
 					break;
 				case "userList":
 					var i;
+					var newUsers = []
 					for (i = 0; i < msg.users.length; ++i) {
 						const user = {
 							id: this.state.users.length + 1,
 							name: msg.users[i]
 						};
-						this.setState(prevState => ({
-							users: [...prevState.users, user]
-						}));
+						newUsers.push(user);
 					}
+					this.setState({ users: newUsers });
 					break;
 			}
-			console.log("ChatApp Message: " + message.text);
 			if (message.text) {
-				console.log("updating state in ChatApp");
 				this.setState(prevState => ({
 					messages: [...prevState.messages, message]
 				}));
@@ -126,11 +125,13 @@ class ChatApp extends React.Component {
 	}
 
 	render() {
-		
+
 		return (
 			<div className="chat-app">
-				<Sidebar activeUsers={this.state.users} />
-				<DialogueBox messages={this.state.messages} />
+				<div className='row-users-messages'>
+					<Sidebar activeUsers={this.state.users} />
+					<DialogueBox messages={this.state.messages} userId={ this.props.userId} />
+				</div>
 				<ChatInput onSubmit={this.handleSubmit} />
 			</div>
 		);

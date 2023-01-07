@@ -6,8 +6,8 @@ class ChatInput extends React.Component {
 		const { onSubmit } = this.props;
 		return (
 			<form id='messageForm' onSubmit={onSubmit} className="chat-input">
-				Message: <input type="text" placeholder="Type your message here..." />
-				<button type="submit">Send</button>
+				Message: <input className="input-box" type="text" placeholder="Type your message here..." />
+				<button className="message-button" type="submit">Send</button>
 			</form>
 		);
 	}

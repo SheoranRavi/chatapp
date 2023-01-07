@@ -1,11 +1,13 @@
 .dialogue-box {
-	width: 100%;
-	height: 100%;
+	width: 1000px;
+	height: 500px;
 	border: 2% solid gray;
 	margin: 2%;
 	padding: 2%;
-	background-color: burlywood;
-	display: block;
+	background-color: rgb(206, 226, 222);
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
 }
 
 .messages-container {
@@ -19,16 +21,45 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	height: 100%;
+	border: 2px solid rgba(148, 90, 90, 0.2);
+	border-radius: 10%;
+	padding: 1%;
+	height: auto;
+	width: 50%;
+	box-shadow: 10px 10px 5px gray;
+}
+
+.received-message {
+	align-self: flex-start;
+	margin-right:auto;
+	background-color: beige;
+}
+
+.sent-message {
+	align-self: flex-end;
+	margin-left:auto;
+	background-color: aquamarine;
 }
 
 .message-text {
 	font-family: sans-serif;
 	font-size: 14px;
-	color: #333;
+	color: rgb(26, 10, 10);
+	padding-top: 1%;
 }
 
 .sender-name {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.message-time {
+	font-family: Helvetica Neue;
+	font-size: 10px;
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-end;

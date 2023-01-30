@@ -10,17 +10,13 @@ class ChatApp extends React.Component {
 	constructor(props) {
 		super(props);
 		console.log("ChatApp props: ", props);
+		var location = this.props.location;
+		console.log("ChatApp location: ", location);
 		this.state = {
 			messages: [],
 			users: []
 		};
 		this.connection = null;
-		// this.state.users = [
-		// 	// { id: 1, name: 'Ravi' },
-		// 	// { id: 2, name: 'Nalisha' },
-		// 	// { id: 3, name: 'Vishal' },
-		// 	// { id: 4, name: 'Some very long name' }
-		// ];
 		this.send = this.send.bind(this);
 		this.setUsername = this.setUsername.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);

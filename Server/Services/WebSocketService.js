@@ -3,9 +3,9 @@ import { ConnectionManager } from './ConnectionService.js';
 import { messageType } from '../Model/MessageType.js';
 import * as Util from '../Util.js';
 export class WebSocketService {
-	constructor(httpServer) {
+	constructor(httpServer, connectionManager) {
 		this.httpServer = httpServer;
-		this.connectionManager = new ConnectionManager();
+		this.connectionManager = connectionManager;
 		this.parseQueryParams = this.parseQueryParams.bind(this);
 		this.onMessage = this.onMessage.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -93,11 +93,16 @@ export class WebSocketService {
 				return;
 			}
 			var resourceUrl = request.resourceURL;
-			// console.log('request: ');
-			// console.dir(request);
 			var queryParams = resourceUrl.query;
 			if (queryParams.userId === null || queryParams.username === null) {
 				request.reject();
+				Util.Log("Connection from " + request.origin + " rejected.");
+				return;
+			}
+			let canAccept = this.connectionManager.canAccept(queryParams.userId);
+			if (!canAccept) {
+				request.reject();
+				Util.Log("User with userId: " + queryParams.userId + " does not exist.");
 				Util.Log("Connection from " + request.origin + " rejected.");
 				return;
 			}

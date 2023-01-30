@@ -1,26 +1,25 @@
 import React from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'
-import { Navigate } from 'react-router-dom';
-import "react-toastify/dist/ReactToastify.css";
+import ChatApp from '../Components/ChatApp/ChatApp.js';
+import { Segment, Form, Grid, Header, Message, Dropdown } from 'semantic-ui-react';
 import './SignUp.css';
+import './Login.css';
 
-class SignUp extends React.Component {
-
+class Login extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			username: '',
 			password: '',
 			userId: null,
-			signUpSuccessful: false,
-			usernameUnique: true,
+			isLoggedIn: false,
 			errorInLoginRequest: false
 		};
-		this.handleClick = this.handleClick.bind(this);
-		this.SignupCompleteEvent = new Event("SignupComplete");
-		document.addEventListener('SignupComplete', function (event) {
-			console.log("Signup complete!!");
-		})
+		this.LoginCompleteEvent = new Event("LoginComplete");
+		document.addEventListener('LoginComplete', function (event) {
+			console.log("Login complete!!");
+		});
 	}
 
 	handleUsernameChange = (event) => {
@@ -30,8 +29,9 @@ class SignUp extends React.Component {
 	handlePasswordChange = (event) => {
 		this.setState({ password: event.target.value });
 	}
-
-	handleClick() {
+	
+	handleSubmit = (event) => {
+		event.preventDefault();
 		var serverUrl;
 		var scheme = "http";
 
@@ -40,7 +40,7 @@ class SignUp extends React.Component {
 		}
 
 		serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
-		var loginRequestUri = "/signup";
+		var loginRequestUri = "/login";
 		var loginRequest = serverUrl + loginRequestUri;
 
 		var xhr = new XMLHttpRequest();
@@ -57,23 +57,25 @@ class SignUp extends React.Component {
 				console.log(response.success);
 				console.log(response['success']);
 				if (loginSuccess) {
-					console.log("Signup successful");
+					console.log("Login successful");
 					this.setState({
-						signUpSuccessful: true
+						userId: response.user.id,
+						isLoggedIn: true
 					});
+					document.dispatchEvent(this.LoginCompleteEvent);
 				}
 				else {
-					console.log("Signup failed");
+					console.log("Login failed");
 					this.setState({ usernameUnique: false });
 					toast('Username already exists, pick different username');
-					console.log('Singup response: ' + response);
+					console.log('Login response: ' + response);
 					if (response.message) {
 						toast(response.message);
 					}
 				}
 			}
 			else {
-				console.log("Error in signup request");
+				console.log("Error in login request");
 				this.setState({ errorInLoginRequest: true });
 			}
 		}
@@ -83,16 +85,14 @@ class SignUp extends React.Component {
 	}
 
 	render() {
-		if (this.state.signUpSuccessful) {
-			console.log("Rerendering");
-			return <Navigate to="/" />
-			//return <ChatApp username={this.state.username} userId={this.state.userId} />
+		if (this.state.isLoggedIn) {
+			return <ChatApp username={this.state.username} userId={this.state.userId} />
 		}
 		return (
 			<div className='main-container'>
 				<div>
 					<div>
-						<h1 className='login-header'>Signup</h1>
+						<h1 className='login-header'>Login</h1>
 					</div>
 					<form onSubmit={this.handleSubmit}>
 						<input id='username' className="login-input username" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} />
@@ -100,12 +100,15 @@ class SignUp extends React.Component {
 					</form>
 				</div>
 				<ToastContainer />
-				<button className="login-button" onClick={() => this.handleClick()}>
-					Create Account
+				<button className="login-button shadow" onClick={(event) => this.handleSubmit(event)}>
+					{this.state.isLoggedIn ? 'Log Out' : 'Login'}
 				</button>
+				<div className='button'>
+					<Link to='/signup' className='btn btn-success shadow medium'>Create New Account</Link>
+				</div>
 			</div>
 		)
 	}
 }
 
-export default SignUp;
+export default Login;

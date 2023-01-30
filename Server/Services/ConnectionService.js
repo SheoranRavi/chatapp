@@ -12,6 +12,15 @@ export class ConnectionManager{
 		this.makeUserListMessage = this.makeUserListMessage.bind(this);
 		this.sendToAllClients = this.sendToAllClients.bind(this);
 		this.updateConnections = this.updateConnections.bind(this);
+		this.canAccept = this.canAccept.bind(this);
+	}
+
+	canAccept(userId) {
+		let user = this.usersRepository.getUser(userId);
+		if (user == null) {
+			return false;
+		}
+		return true;
 	}
 
 	addConnection(connection) {

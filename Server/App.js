@@ -7,14 +7,22 @@ import { ConnectionManager } from './Services/ConnectionService.js';
 import { Routes } from './api-routes/routes.js';
 import { staticDir, PORT } from './Model/Constants.js';
 import { WebSocketService } from './Services/WebSocketService.js';
+import { ChatAppController } from './controllers/ChatAppController.js';
+import { UsersRepository } from './repository/UsersRepository.js';
+import { ChatAppService } from './Services/ChatAppService.js';
 
-const app = createApp(staticDir);
-configureMiddlewares(app);
-const routes = new Routes();
-routes.defineRoutes(app);
-const httpServer = createHttpServer(app);
-startHttpServer(httpServer, PORT);
-var webSocketServer = new WebSocketService(httpServer);
+const container = Object.create(null);
+main();
+
+function main() {
+	const app = createApp(staticDir);
+	configureMiddlewares(app);
+	setupServices(app);
+	const httpServer = createHttpServer(app);
+	startHttpServer(httpServer, PORT);
+	container.connectionManager = new ConnectionManager(container.usersRepository);
+	var webSocketServer = new WebSocketService(httpServer, container.connectionManager);
+}
 
 function createApp(staticDir) {
 	var app = express();
@@ -30,6 +38,16 @@ function configureMiddlewares(app) {
 	app.use(express.static(staticDir));
 }
 
+function setupServices(app) {
+	const usersRepository = new UsersRepository();
+	const chatAppService = new ChatAppService();
+	const chatAppController = new ChatAppController(usersRepository, chatAppService);
+	container.usersRepository = usersRepository;
+	container.chatAppService = chatAppService;
+	const routes = new Routes();
+	routes.defineRoutes(app, chatAppController);
+}
+
 function createHttpServer(app) {
 	const __dirname = path.resolve();
 	const certDir = path.join(__dirname, '/test_cert/');
@@ -39,6 +57,7 @@ function createHttpServer(app) {
 	};
 
 	var httpServer = http.createServer(app);
+	console.log("Created http server");
 	return httpServer;
 }
 

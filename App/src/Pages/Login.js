@@ -67,7 +67,7 @@ class Login extends React.Component {
 				else {
 					console.log("Login failed");
 					this.setState({ usernameUnique: false });
-					toast('Username already exists, pick different username');
+					toast('Username or password is incorrect');
 					console.log('Login response: ' + response);
 					if (response.message) {
 						toast(response.message);

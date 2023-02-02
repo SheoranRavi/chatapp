@@ -1,6 +1,7 @@
 import React from 'react';
 import { ToastContainer, toast } from 'react-toastify'
 import { Navigate } from 'react-router-dom';
+import { FormErrors } from '../Components/FormErrors/FormErrors.js';
 import "react-toastify/dist/ReactToastify.css";
 import './SignUp.css';
 
@@ -14,7 +15,11 @@ class SignUp extends React.Component {
 			userId: null,
 			signUpSuccessful: false,
 			usernameUnique: true,
-			errorInLoginRequest: false
+			errorInLoginRequest: false,
+			passwordValid: false,
+			usernameValid: false,
+			formValid: false,
+			formErrors: { username: '', password: '' }
 		};
 		this.handleClick = this.handleClick.bind(this);
 		this.SignupCompleteEvent = new Event("SignupComplete");
@@ -24,11 +29,40 @@ class SignUp extends React.Component {
 	}
 
 	handleUsernameChange = (event) => {
+		this.validateField('username', event.target.value);
 		this.setState({ username: event.target.value });
 	}
 
 	handlePasswordChange = (event) => {
+		console.log("Password changed: ", event.target.name);
+		this.validateField('password', event.target.value);
 		this.setState({ password: event.target.value });
+	}
+
+	validateField = (name, value) => {
+		let usernameValid = this.state.usernameValid;
+		let passwordValid = this.state.passwordValid;
+		let formErrors = this.state.formErrors;
+		switch (name) {
+			case 'username':
+				usernameValid = value.length >= 3;
+				formErrors.username = usernameValid ? '' : ' is too short';
+				break;
+			case 'password':
+				passwordValid = value.length >= 4;
+				formErrors.password = passwordValid ? '' : ' should be at least 4 characters';
+				break;
+			default:
+				break;
+		}
+		this.setState({
+			usernameValid: usernameValid,
+			passwordValid: passwordValid
+		}, this.validateForm);
+	}
+
+	validateForm = () => {
+		this.setState({ formValid: this.state.usernameValid && this.state.passwordValid });
 	}
 
 	handleClick() {
@@ -99,8 +133,11 @@ class SignUp extends React.Component {
 						<input id='password' className="login-input password" type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} />
 					</form>
 				</div>
+				<div className='panel panel-default'>
+					<FormErrors formErrors={this.state.formErrors} />
+				</div>
 				<ToastContainer />
-				<button className="login-button" onClick={() => this.handleClick()}>
+				<button className="login-button" disabled={ !this.state.formValid} onClick={() => this.handleClick()}>
 					Create Account
 				</button>
 			</div>

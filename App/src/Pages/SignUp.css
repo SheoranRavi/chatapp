@@ -47,3 +47,22 @@
 	background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
 	text-decoration: none;
 }
+
+.login-button:disabled {
+	background: #ced6db;
+	background-image: -webkit-linear-gradient(top, #bfd0db, #c7d8e2);
+	background-image: -moz-linear-gradient(top, #c4d6e2, #cfdae2);
+	background-image: -ms-linear-gradient(top, #d5e2eb, #d0d9df);
+	background-image: -o-linear-gradient(top, #c6d9e6, #d9e0e6);
+	background-image: linear-gradient(to bottom, #ccdae4, #bccbd4);
+	-webkit-border-radius: 11;
+	-moz-border-radius: 11;
+	border-radius: 11px;
+	font-family: Courier New;
+	color: #ffffff;
+	font-size: 20px;
+	padding: 6px 19px 10px 20px;
+	margin-left: 6%;
+	margin-right: 6%;
+	text-decoration: none;
+}

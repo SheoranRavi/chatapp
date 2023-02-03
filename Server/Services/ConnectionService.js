@@ -24,8 +24,6 @@ export class ConnectionManager{
 	}
 
 	addConnection(connection) {
-		console.log('adding connection to collection:');
-		console.dir(connection);
 		this.connectionArray.push(connection);
 		console.log('length of connectionArray: ' + this.connectionArray.length);
 	}
@@ -45,14 +43,8 @@ export class ConnectionManager{
 	getConnectionForID(id) {
 		var connect = null;
 		var i;
-		console.log('length of connectionArray: ' + this.connectionArray.length);
-		console.log('looking for connection with id: ' + id);
-		console.log('typeof id: ' + typeof (id));
 	  
 		for (i = 0; i < this.connectionArray.length; i++) {
-			console.log('connection ID current: ' + this.connectionArray[i].clientID);
-			console.log('typeof connection ID current: ' + typeof (this.connectionArray[i].clientID));
-
 			if (this.connectionArray[i].clientID == id) {
 				connect = this.connectionArray[i];
 				break;
@@ -71,10 +63,14 @@ export class ConnectionManager{
 			users: []
 		};
 		console.log(messageType.UserList);
+		const usersSet = new Set();
 		var i;
 		// add users to the list
 		for (i = 0; i < this.connectionArray.length; i++){
-			usrListMsg.users.push(this.connectionArray[i].username);
+			if (!usersSet.has(this.connectionArray[i].clientID)) {
+				usrListMsg.users.push(this.connectionArray[i].username);
+				usersSet.add(this.connectionArray[i].clientID);
+			}
 		}
 		return usrListMsg;
 	}

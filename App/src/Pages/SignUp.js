@@ -34,7 +34,6 @@ class SignUp extends React.Component {
 	}
 
 	handlePasswordChange = (event) => {
-		console.log("Password changed: ", event.target.name);
 		this.validateField('password', event.target.value);
 		this.setState({ password: event.target.value });
 	}
@@ -81,7 +80,7 @@ class SignUp extends React.Component {
 		xhr.open("POST", loginRequest);
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.onload = function () {
-			console.log("Login response: " + xhr.responseText);
+			console.log("Signup response: " + xhr.responseText);
 			console.log("xhr.status: " + xhr.status);
 			if (xhr.status === 200) {
 				var response = JSON.parse(xhr.responseText);

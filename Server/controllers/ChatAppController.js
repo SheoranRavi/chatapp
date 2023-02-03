@@ -3,12 +3,18 @@ import { staticDir } from '../Model/Constants.js';
 import { loginResponse } from '../Model/loginResponse.js';
 import { SignupResponse } from '../Model/SignUpResponse.js';
 import { User } from '../Model/User.js';
-import { UsersRepository } from '../repository/UsersRepository.js';
-import express from 'express';
-import { Sign } from 'crypto';
+import bcrypt from 'bcrypt';
+import log4js from 'log4js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export class ChatAppController{
+	saltRounds = 10;
 	constructor(usersRepository, chatAppService) {
+		this.__dirname = dirname(fileURLToPath(import.meta.url));
+		let configPath = path.join(this.__dirname, '../log4js.json');
+		log4js.configure(configPath);
+		this.logger = log4js.getLogger('controller');
 		this.usersRepository = usersRepository;
 		this.chatAppService = chatAppService;
 		this.login = this.login.bind(this);
@@ -18,18 +24,28 @@ export class ChatAppController{
 	
 	login(req, res) {
 		try {
-			console.log('login request: ' + req);
-			console.log('login request body: ' + req.body);
 			const username = req.body.username;
-			console.log('login called with username ' + username);
-			const user = new User(null, req.body.username, req.body.password);
+			this.logger.info('login called with username ' + username);
+			
+			const user = new User(null, req.body.username, null);
+
+			bcrypt.hash(req.body.password, this.saltRounds)
+				.then((hash) => { user.password = hash })
+				.catch(ex => {
+					this.logger.error('error in bcrypt: ' + ex.stack);
+				});
+			
 			const success = this.usersRepository.checkUser(user);
-			const response = new loginResponse(success, null, user);
+			var respUser = new User(null, user.username, null);
+			if (success)
+				respUser.id = user.id;
+			const response = new loginResponse(success, null, respUser);
 			console.log('login response: ' + JSON.stringify(response));
 			res.json(response);
 		}
 		catch (e) {
 			console.log('error in login: ' + e);
+			this.logger.error('error in login: ' + e.stack);
 			const response = new loginResponse(false, e, null);
 			res.json(response);
 		}
@@ -38,15 +54,21 @@ export class ChatAppController{
 	signup(req, res) {
 		try {
 			const username = req.body.username;
-			console.log('signup called with username ' + username);
-			const user = new User(null, req.body.username, req.body.password);
+			this.logger.info('signup called with username ' + username);
+			const user = new User(null, req.body.username, null);
+			bcrypt.hash(req.body.password, this.saltRounds)
+				.then((hash) => { user.password = hash })
+				.catch(ex => {
+					this.logger.error('error in bcrypt: ' + ex.stack);
+				});
 			const success = this.usersRepository.addUser(user);
 			const response = new SignupResponse(success, null);
-			console.log('login response: ' + JSON.stringify(response));
+			console.log('signup response: ' + JSON.stringify(response));
+			this.logger.info('signup response: ' + JSON.stringify(response));
 			res.json(response);
 		}
 		catch (e) {
-			console.log('error in signup: ' + e);
+			this.logger.error('error in signup: ' + e.stack);
 			const response = new SignupResponse(false, null);
 			res.json(response);
 		}

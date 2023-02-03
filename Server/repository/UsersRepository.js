@@ -1,4 +1,5 @@
 import { User } from '../Model/User.js';
+import bcrypt from 'bcrypt';
 
 export class UsersRepository {
 	constructor() {
@@ -42,9 +43,14 @@ export class UsersRepository {
 
 	checkUser(user) {
 		for (let i = 0; i < this.users.length; ++i){
-			if (this.users[i].username == user.username && this.users[i].password == user.password) {
-				user.id = this.users[i].id;
-				return true;
+			if (this.users[i].username == user.username) {
+				var res = bcrypt.compare(this.users[i].password, user.password)
+					.then(res => {
+						return res;
+					});
+				if(res)
+					user.id = this.users[i].id;
+				return res;
 			}
 		}
 		return false;

@@ -1,7 +1,7 @@
 export class loginResponse{
-	constructor(success, message, user){
+	constructor(success, errorResponse, user){
 		this.success = success;
-		this.message = message;
+		this.errorResponse = errorResponse;
 		this.user = user;
 	}
 }

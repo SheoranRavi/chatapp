@@ -22,54 +22,52 @@ export class ChatAppController{
 		this.signup = this.signup.bind(this);
 	}
 	
-	login(req, res) {
+	async login(req, res) {
 		try {
 			const username = req.body.username;
 			this.logger.info('login called with username ' + username);
 			
-			const user = new User(null, req.body.username, null);
+			const user = new User(null, req.body.username.toLowerCase(), req.body.password);
 
-			bcrypt.hash(req.body.password, this.saltRounds)
-				.then((hash) => { user.password = hash })
-				.catch(ex => {
-					this.logger.error('error in bcrypt: ' + ex.stack);
-				});
-			
-			const success = this.usersRepository.checkUser(user);
+			var errorResponse = {};
+			const success = await this.usersRepository.checkUser(user, errorResponse);
 			var respUser = new User(null, user.username, null);
 			if (success)
 				respUser.id = user.id;
-			const response = new loginResponse(success, null, respUser);
+			const response = new loginResponse(success, errorResponse, respUser);
 			console.log('login response: ' + JSON.stringify(response));
 			res.json(response);
 		}
 		catch (e) {
+			errorResponse = { status: 500, message: 'Server error' };
 			console.log('error in login: ' + e);
 			this.logger.error('error in login: ' + e.stack);
-			const response = new loginResponse(false, e, null);
+			const response = new loginResponse(false, errorResponse, null);
 			res.json(response);
 		}
 	}
 
-	signup(req, res) {
+	async signup(req, res) {
 		try {
 			const username = req.body.username;
 			this.logger.info('signup called with username ' + username);
-			const user = new User(null, req.body.username, null);
-			bcrypt.hash(req.body.password, this.saltRounds)
+			const user = new User(null, req.body.username.toLowerCase(), null);
+			await bcrypt.hash(req.body.password, this.saltRounds)
 				.then((hash) => { user.password = hash })
 				.catch(ex => {
 					this.logger.error('error in bcrypt: ' + ex.stack);
 				});
-			const success = this.usersRepository.addUser(user);
-			const response = new SignupResponse(success, null);
+			var errorResponse = {};
+			const success = this.usersRepository.addUser(user, errorResponse);
+			const response = new SignupResponse(success, errorResponse);
 			console.log('signup response: ' + JSON.stringify(response));
 			this.logger.info('signup response: ' + JSON.stringify(response));
 			res.json(response);
 		}
 		catch (e) {
+			errorResponse = { status: 500, message: 'Server error' };
 			this.logger.error('error in signup: ' + e.stack);
-			const response = new SignupResponse(false, null);
+			const response = new SignupResponse(false, errorResponse);
 			res.json(response);
 		}
 	}

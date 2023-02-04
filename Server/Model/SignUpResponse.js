@@ -1,6 +1,6 @@
 export class SignupResponse{
-	constructor(success, message){
+	constructor(success, errorResponse){
 		this.success = success;
-		this.message = message;
+		this.errorResponse = errorResponse;
 	}
 }

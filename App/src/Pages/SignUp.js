@@ -84,12 +84,9 @@ class SignUp extends React.Component {
 			console.log("xhr.status: " + xhr.status);
 			if (xhr.status === 200) {
 				var response = JSON.parse(xhr.responseText);
-				var loginSuccess = response.success;
+				var signupSuccess = response.success;
 				console.dir(response);
-				console.log(loginSuccess);
-				console.log(response.success);
-				console.log(response['success']);
-				if (loginSuccess) {
+				if (signupSuccess === true) {
 					console.log("Signup successful");
 					this.setState({
 						signUpSuccessful: true
@@ -97,8 +94,14 @@ class SignUp extends React.Component {
 				}
 				else {
 					console.log("Signup failed");
-					this.setState({ usernameUnique: false });
-					toast('Username already exists, pick different username');
+					if (response.errorResponse.errorField != null && response.errorResponse.errorField == 'Username') {
+						this.setState({ usernameUnique: false });
+						toast('Username already exists, pick different username');
+					}
+					else if (response.errorResponse.status != null && response.errorResponse.status == 500) {
+						this.setState({ errorInLoginRequest: true });
+						toast('Server Error');	
+					}
 					console.log('Singup response: ' + response);
 					if (response.message) {
 						toast(response.message);

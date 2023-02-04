@@ -54,9 +54,7 @@ class Login extends React.Component {
 				var loginSuccess = response.success;
 				console.dir(response);
 				console.log(loginSuccess);
-				console.log(response.success);
-				console.log(response['success']);
-				if (loginSuccess) {
+				if (loginSuccess === true) {
 					console.log("Login successful");
 					this.setState({
 						userId: response.user.id,
@@ -65,13 +63,18 @@ class Login extends React.Component {
 					document.dispatchEvent(this.LoginCompleteEvent);
 				}
 				else {
-					console.log("Login failed");
-					this.setState({ usernameUnique: false });
-					toast('Username or password is incorrect');
-					console.log('Login response: ' + response);
-					if (response.message) {
-						toast(response.message);
+					if (response.errorResponse.errorField != null) {
+						toast(response.errorResponse.message);
 					}
+					else if (response.status != null && response.status == 500) {
+						this.setState({ errorInLoginRequest: true });
+						toast('Server Error');	
+					}
+					else {
+						toast('Unknown Error');
+					}
+					console.log("Login failed");
+					console.log('Login response: ' + response);
 				}
 			}
 			else {

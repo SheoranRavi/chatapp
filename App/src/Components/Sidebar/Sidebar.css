@@ -1,27 +1,8 @@
-/* .sidebar {
-	width: 30%;
-	padding: 5%;
-	background-color: #eee;
-	border-radius: 5px;
-	transform: scale(1);
-}
 
-.sidebar h2 {
-	margin-top: 10%;
-}
-
-.sidebar ul {
-	list-style: none;
-	padding: 0;
-}
-
-.sidebar li {
-	margin-bottom: 10px;
-} */
 
 @media (min-width: 768px) {
 	.sidebar {
-		background-color: rgb(241, 241, 233);
+		background-color: darkkhaki;
 		width: 25%;
 		padding-bottom: 0;
 		padding-left: 2%;
@@ -37,6 +18,12 @@
 		padding-left: 2%;
 		padding-top: 2%;
 	}
+}
+
+.sidebar {
+	box-shadow: 5px 5px 10px gray;
+	border: 1px solid gray;
+	border-radius: 5px;
 }
 
 .sidebar-header{

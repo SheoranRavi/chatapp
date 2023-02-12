@@ -13,14 +13,16 @@ class ListItem extends React.Component {
 		this.setState((prevState) => ({
 			active: !prevState.active,
 		}));
+		this.props.setCurrentTarget(this.props.user.userId);
+		const listItem = document.getElementById("listItem");
+		listItem.classList.toggle("active");
 	}
 
 	render() {
 		const { user } = this.props;
 		const { active } = this.state;
-
 		return (
-			<li className="user-list-item" onClick={this.handleClick}>
+			<li className="user-list-item" id="listItem" onClick={this.handleClick}>
 				{user.name} {active && <span className="dot">&bull;</span>}
 			</li>
 		);

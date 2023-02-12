@@ -19,12 +19,18 @@ class DialogueBox extends React.Component {
 		this.scrollToBottom();
 	}
 
+	videoCall = () => {
+		console.log("Video call");
+		this.props.videoCallCallback(this.props.userId);
+	}
+
 	render() {
 		const messageBase = "message"
 		const receivedMessage = messageBase + " received-message";
 		const sentMessage = messageBase + " sent-message";
 		return (
 			<div className="dialogue-box">
+				<div className="glyphicon glyphicon-facetime-video" onClick={this.videoCall}></div>
 					{this.props.messages.map((message, index) => {
 						// If the message is from the current user, add the 'messageThis' class to the message div
 						message.className = message.userId == this.props.userId ? sentMessage : receivedMessage;

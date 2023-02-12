@@ -3,6 +3,7 @@ import ChatMessages from '../ChatMessages/ChatMessages.js';
 import ChatInput from '../ChatInput/ChatInput.js';
 import Sidebar from '../Sidebar/Sidebar.js';
 import DialogueBox from '../DialogueBox/DialogueBox.js';
+import VideoPlayer from '../VideoPlayer/VideoPlayer.js';
 import './ChatApp.css';
 
 class ChatApp extends React.Component {
@@ -14,7 +15,9 @@ class ChatApp extends React.Component {
 		console.log("ChatApp location: ", location);
 		this.state = {
 			messages: [],
-			users: []
+			users: [],
+			curretTarget: null,
+			inCall: false
 		};
 		this.connection = null;
 		this.send = this.send.bind(this);
@@ -31,6 +34,7 @@ class ChatApp extends React.Component {
 			type: "message",
 			id: this.props.userId,
 			username: this.props.username,
+			target: this.state.curretTarget,
 			date: Date.now()
 		};
 		this.connection.send(JSON.stringify(msg));
@@ -98,9 +102,11 @@ class ChatApp extends React.Component {
 					for (i = 0; i < msg.users.length; ++i) {
 						const user = {
 							id: this.state.users.length + 1,
-							name: msg.users[i]
+							name: msg.users[i].username,
+							userId: msg.users[i].id
 						};
-						newUsers.push(user);
+						if(user.userId != this.props.userId)
+							newUsers.push(user);
 					}
 					this.setState({ users: newUsers });
 					break;
@@ -120,15 +126,49 @@ class ChatApp extends React.Component {
 		console.log("***CREATED ONOPEN");
 	}
 
+	setCurrentTarget = (userId) => {
+		console.log("***SET CURRENT TARGET");
+		this.setState({ curretTarget: userId });
+	}
+
+	videoCallCallback = (userId) => {
+		console.log("***VIDEO CALL CALLBACK");
+		this.setState({ inCall: true });
+	}
+
+	hangUpCallback = () => {
+		this.setState({ inCall: false });
+	}
+
 	render() {
 
 		return (
 			<div className="chat-app">
-				<div className='row-users-messages'>
-					<Sidebar activeUsers={this.state.users} />
-					<DialogueBox messages={this.state.messages} userId={ this.props.userId} />
+				<div className='bg-secondary text-white text-center'>
+					{this.state.curretTarget !== null &&
+						<p>Connected to {this.state.users.filter((val) => {
+							return val.userId === this.state.curretTarget;
+						}).at(0).name}</p>
+					}
 				</div>
-				<ChatInput onSubmit={this.handleSubmit} />
+				<div className='row-users-messages'>
+					<Sidebar activeUsers={this.state.users}
+						setCurrentTarget={this.setCurrentTarget}
+					/>
+					<DialogueBox messages={this.state.messages}
+						userId={this.props.userId} 
+						videoCallCallback={this.videoCallCallback}
+						/>
+				</div>
+				{this.state.inCall &&
+					<VideoPlayer hangUpCallback={this.hangUpCallback}></VideoPlayer>
+				}
+				<ChatInput onSubmit={this.handleSubmit} disabled={this.state.curretTarget === null} />
+				{this.state.curretTarget === null &&
+					<div>
+						<p>Choose a user to start chatting</p>
+					</div>
+				}
 			</div>
 		);
 	}

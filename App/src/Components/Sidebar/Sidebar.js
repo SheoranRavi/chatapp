@@ -7,8 +7,11 @@ class Sidebar extends React.Component {
 		super(props);
 	}
 	render() {
+		var setCurrentTarget = this.props.setCurrentTarget;
 		const activeUsersList = this.props.activeUsers.map((user, index) => (
-			<ListItem key={index} user={user} />
+			<ListItem key={index} user={user}
+				setCurrentTarget={setCurrentTarget} 
+				/>
 		));
 
 		return (

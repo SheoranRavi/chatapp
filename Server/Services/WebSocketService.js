@@ -32,10 +32,9 @@ export class WebSocketService {
 				Util.Log("Received message: " + message.utf8Data);
 
 				// Process message
-				var sendToClients = true;
+				var sendToAllClients = false;
 				const msg = JSON.parse(message.utf8Data);
 				var connect = this.connectionManager.getConnectionForID(msg.id);
-
 				// Handle message according to its type
 				switch (msg.type) {
 					case messageType.Message:
@@ -66,8 +65,15 @@ export class WebSocketService {
 						this.connectionManager.sendUserListToAll();
 						break;
 				}
-
-				if (sendToClients) {
+				var sendToTarget = msg.target != undefined;
+				var target = msg.target;
+				if (sendToTarget !== null) {
+					var msgString = JSON.stringify(msg);
+					this.connectionManager.sendToTarget(msgString, target, msg.id);
+				}
+				else
+					sendToAllClients = true;
+				if (sendToAllClients) {
 					var msgString = JSON.stringify(msg);
 					this.connectionManager.sendToAllClients(msgString);
 				}

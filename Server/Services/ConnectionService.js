@@ -68,7 +68,11 @@ export class ConnectionManager{
 		// add users to the list
 		for (i = 0; i < this.connectionArray.length; i++){
 			if (!usersSet.has(this.connectionArray[i].clientID)) {
-				usrListMsg.users.push(this.connectionArray[i].username);
+				let user = {
+					username: this.connectionArray[i].username,
+					id: this.connectionArray[i].clientID
+				};
+				usrListMsg.users.push(user);
 				usersSet.add(this.connectionArray[i].clientID);
 			}
 		}
@@ -90,6 +94,16 @@ export class ConnectionManager{
 		var i;
 		for (i = 0; i < this.connectionArray.length; i++){
 			this.connectionArray[i].sendUTF(msgString);
+		}
+	}
+
+	sendToTarget(msgString, target, id) {
+		var i;
+		for (i = 0; i < this.connectionArray.length; i++){
+			if (this.connectionArray[i].clientID == target || 
+				this.connectionArray[i].clientID == id) {
+				this.connectionArray[i].sendUTF(msgString);
+			}
 		}
 	}
 

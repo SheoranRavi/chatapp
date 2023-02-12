@@ -3,11 +3,11 @@ import './ChatInput.css';
 
 class ChatInput extends React.Component {
 	render() {
-		const { onSubmit } = this.props;
+		const { onSubmit, disabled } = this.props;
 		return (
 			<form id='messageForm' onSubmit={onSubmit} className="chat-input">
 				Message: <input className="input-box" type="text" placeholder="Type your message here..." />
-				<button className="message-button" type="submit">Send</button>
+				<button className="message-button" type="submit" disabled={ disabled}>Send</button>
 			</form>
 		);
 	}

@@ -57,7 +57,7 @@ function createHttpServer(app) {
 		cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
 	};
 
-	var httpServer = https.createServer(options, app);
+	var httpServer = http.createServer(app);
 	console.log("Created http server");
 	return httpServer;
 }

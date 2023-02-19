@@ -1,9 +1,17 @@
 import { server as WebSocketServer } from 'websocket';
 import { ConnectionManager } from './ConnectionService.js';
 import { messageType } from '../Model/MessageType.js';
+import log4js from 'log4js';
+import path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import * as Util from '../Util.js';
 export class WebSocketService {
 	constructor(httpServer, connectionManager) {
+		this.__dirname = dirname(fileURLToPath(import.meta.url));
+		let configPath = path.join(this.__dirname, '../log4js.json');
+		log4js.configure(configPath);
+		this.logger = log4js.getLogger('WebSocketService');
 		this.httpServer = httpServer;
 		this.connectionManager = connectionManager;
 		this.parseQueryParams = this.parseQueryParams.bind(this);
@@ -33,11 +41,13 @@ export class WebSocketService {
 
 				// Process message
 				var sendToAllClients = false;
+				var sendToOrigin = false;
 				const msg = JSON.parse(message.utf8Data);
 				var connect = this.connectionManager.getConnectionForID(msg.id);
 				// Handle message according to its type
 				switch (msg.type) {
 					case messageType.Message:
+						sendToOrigin = true;
 						msg.name = connect.username;
 						msg.text = msg.text.replace(/(<([^>]+)>)/ig, "");
 						break;
@@ -69,7 +79,7 @@ export class WebSocketService {
 				var target = msg.target;
 				if (sendToTarget !== null) {
 					var msgString = JSON.stringify(msg);
-					this.connectionManager.sendToTarget(msgString, target, msg.id);
+					this.connectionManager.sendToTarget(msgString, target, msg.id, sendToOrigin);
 				}
 				else
 					sendToAllClients = true;
@@ -81,6 +91,7 @@ export class WebSocketService {
 		}
 		catch (e) {
 			Util.Log("onMessage Error: " + e);
+			this.logger.error(e.stack);
 		}
 	}
 

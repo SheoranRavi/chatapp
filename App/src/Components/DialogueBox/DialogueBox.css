@@ -23,6 +23,17 @@
 	height: 100%;
 }
 
+.video-call-button {
+	width: 8%;
+	position: absolute;
+	right: 20px;
+}
+
+.camera-icon {
+	padding-left: 5px;
+	font-size: 24px;
+}
+
 .message {
 	display: flex;
 	flex-direction: column;

@@ -11,22 +11,23 @@ class ChatApp extends React.Component {
 	constructor(props) {
 		super(props);
 		console.log("ChatApp props: ", props);
-		var location = this.props.location;
-		console.log("ChatApp location: ", location);
 		this.state = {
 			messages: [],
 			users: [],
 			curretTarget: null,
-			inCall: false
+			inCall: false,
+			localStream: null,
+			remoteStream: null
 		};
+		this.peerConnection = null;
 		this.connection = null;
-		this.send = this.send.bind(this);
+		this.send = this.sendTextMesssage.bind(this);
 		this.setUsername = this.setUsername.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.componentDidMount = this.componentDidMount.bind(this);
 	}
 
-	send(text) {
+	sendTextMesssage(text) {
 		console.log("***SEND");
 		console.log("Sending message to server with userId: " + this.props.userId);
 		var msg = {
@@ -40,6 +41,11 @@ class ChatApp extends React.Component {
 		this.connection.send(JSON.stringify(msg));
 	}
 
+	sendToServer = (msg) => {
+		const msgJSON = JSON.stringify(msg);
+		this.connection.send(msgJSON);
+	}
+
 	handleSubmit = event => {
 		event.preventDefault();
 		// Get the message text from the input field
@@ -48,7 +54,7 @@ class ChatApp extends React.Component {
 
 		// Clear the input field
 		input.value = '';
-		this.send(text);
+		this.sendTextMesssage(text);
 	};
 
 	setUsername() {
@@ -82,7 +88,7 @@ class ChatApp extends React.Component {
 		this.connection.onmessage = function (evt) {
 			console.log("***ONMESSAGE");
 			var msg = JSON.parse(evt.data);
-			console.log("Message received: ");
+			console.log("Message received: ", msg.type);
 			console.dir(msg);
 			var time = new Date(msg.date);
 			var timeStr = time.toLocaleTimeString();
@@ -109,6 +115,21 @@ class ChatApp extends React.Component {
 							newUsers.push(user);
 					}
 					this.setState({ users: newUsers });
+					this.validateCurrentTarget();
+					break;
+				case "new-ice-candidate":
+					this.handleNewICECandidateMsg(msg);
+					break;
+				case "video-offer":
+					this.handleVideoOfferMsg(msg);
+					break;
+				case "video-answer":
+					this.handleVideoAnswerMsg(msg);
+					break;
+				case "hang-up":
+					this.handleHangUpMsg(msg);
+					break;
+				default:
 					break;
 			}
 			if (message.text) {
@@ -126,29 +147,258 @@ class ChatApp extends React.Component {
 		console.log("***CREATED ONOPEN");
 	}
 
+	validateCurrentTarget = () => {
+		if (this.state.users.filter((val) => val.userId == this.state.curretTarget).length == 0) {
+			this.setState({ curretTarget: null });
+		}
+	}
+
+	handleVideoAnswerMsg = (msg) => {
+		console.log("***HANDLE VIDEO ANSWER MSG");
+		var desc = new RTCSessionDescription(msg.sdp);
+		this.peerConnection.setRemoteDescription(desc).catch(this.reportError);
+	}
+
+	handleHangUpMsg = (msg) => {
+		console.log("***HANDLE HANG UP MSG");
+		this.closeVideoCall();
+		this.setState({ inCall: false });
+	}
+
 	setCurrentTarget = (userId) => {
 		console.log("***SET CURRENT TARGET");
 		this.setState({ curretTarget: userId });
 	}
 
-	videoCallCallback = (userId) => {
+	videoCallCallback = async (userId) => {
 		console.log("***VIDEO CALL CALLBACK");
+		if (this.peerConnection) {
+			alert("You can't start a call because you already have one open!!");
+			return;
+		}
+		let mediaConstraints = {
+			audio: true,
+			video: true
+		};
+		await this.createPeerConnection();
+		navigator.mediaDevices
+			.getUserMedia(mediaConstraints)
+			.then((localStream) => {
+				localStream
+					.getTracks()
+					.forEach((track) => this.peerConnection.addTrack(track, localStream));
+				this.setState({ localStream: localStream });
+			})
+			.catch(this.handleGetUserMediaError);				
 		this.setState({ inCall: true });
 	}
 
+	handleGetUserMediaError = (e) => {
+		console.log("***HANDLE GET USER MEDIA ERROR");
+		switch (e.name) {
+			case "NotFoundError":
+				alert("Unable to open your call because no camera and/or microphone were found");
+				break;
+			case "SecurityError":
+			case "PermissionError":
+				break;
+			default:
+				alert("Error opening your camera and/or microphone: " + e.message);
+				break;
+		}
+		this.closeVideoCall();
+	}
+
+	createPeerConnection = async () => {
+		console.log("***CREATE PEER CONNECTION");
+		this.peerConnection = new RTCPeerConnection({
+			iceServers: [
+				{
+					urls: "stun:stun.stunprotocol.org",
+				},
+			],
+		});
+
+		this.peerConnection.onicecandidate = this.handleICECandidateEvent;
+		this.peerConnection.ontrack = this.handleTrackEvent;
+		this.peerConnection.onnegotiationneeded = this.handleNegotiationNeededEvent;
+		this.peerConnection.onremovetrack = this.handleRemoveTrackEvent;
+		this.peerConnection.oniceconnectionstatechange = this.handleICEConnectionStateChangeEvent;
+		this.peerConnection.onicegatheringstatechange = this.handleICEGatheringStateChangeEvent;
+		this.peerConnection.onsignalingstatechange = this.handleSignalingStateChangeEvent;
+	}
+
+	handleSignalingStateChangeEvent = (event) => {
+		console.log("***HANDLE SIGNALLING STATE CHANGE EVENT");
+		console.log(`Signaling state changed to: ${this.peerConnection.signalingState}`);
+		if(this.peerConnection.signalingState == "closed")
+			this.closeVideoCall();
+	}
+
+	handleICEGatheringStateChangeEvent = (event) => {
+		console.log("***HANDLE ICE GATHERING STATE CHANGE EVENT");
+		console.log('ICE gathering state changed to: ', this.peerConnection.iceGatheringState);
+	}
+
+	handleNegotiationNeededEvent = async (event) => {
+		console.log("***HANDLE NEGOTIATION NEEDED EVENT");
+		try {
+			var offer = await this.peerConnection.createOffer();
+			await this.peerConnection.setLocalDescription(offer);
+			// if (this.peerConnection.signalingState != "stable") {
+			// 	console.log("The connection isn't stable yet; postponing sending the offer");
+			// 	return;
+			// }
+			console.log("offer: ");
+			console.dir(offer);
+			console.log("Current signalling state: " + this.peerConnection.signalingState);
+			console.log("localDescription created: " + this.peerConnection.localDescription);
+			this.sendToServer({
+				id: this.props.userId,
+				target: this.state.curretTarget,
+				type: "video-offer",
+				sdp: this.peerConnection.localDescription,
+			});
+		}
+		catch (err) {
+			this.reportError(err);
+		}
+	}
+
+	handleVideoOfferMsg = async (msg) => {
+		console.log("***HANDLE VIDEO OFFER MSG");
+		if (this.peerConnection) {
+			console.log("Peer connection already exists, something is wrong");
+			return;
+		}
+		
+		await this.createPeerConnection();
+		let mediaConstraints = {
+			audio: true,
+			video: true
+		};
+		
+		const desc = new RTCSessionDescription(msg.sdp);
+		this.peerConnection
+			.setRemoteDescription(desc)
+			.then(() => navigator.mediaDevices.getUserMedia(mediaConstraints))
+			.then((localStream) => {
+				localStream
+					.getTracks()
+					.forEach((track) => this.peerConnection.addTrack(track, localStream));
+				this.setState({ localStream: localStream });
+
+			})
+			.then(() => this.peerConnection.createAnswer())
+			.then((answer) => this.peerConnection.setLocalDescription(answer))
+			.then(() => {
+				this.sendToServer({
+					id: this.props.userId,
+					target: msg.id,
+					type: "video-answer",
+					sdp: this.peerConnection.localDescription,
+				});
+			})
+			.catch(this.handleGetUserMediaError);
+		this.setState({ inCall: true });
+	}
+
+	handleICECandidateEvent = (event) => {
+		console.log("***HANDLE ICE CANDIDATE EVENT");
+		if (event.candidate) {
+			this.sendToServer({
+				type: "new-ice-candidate",
+				target: this.state.curretTarget,
+				candidate: event.candidate
+			});
+		}
+	}
+
+	handleNewICECandidateMsg = async (msg) => {
+		console.log("***HANDLE NEW ICE CANDIDATE MSG");
+		const candidate = new RTCIceCandidate(msg.candidate);
+		try {
+			if (this.peerConnection)
+				await this.peerConnection.addIceCandidate(candidate);
+			else
+				console.log("***handleNewICECandidate called without creating RTCPeerConnection");
+		} catch (e) {
+			this.reportError(e);
+		}
+	}
+
+	handleTrackEvent = (event) => {
+		console.log("***HANDLE TRACK EVENT");
+		const remoteStream = event.streams[0];
+		this.setState({ remoteStream: remoteStream });
+	}
+
+	closeVideoCall = () => {
+		console.log("***CLOSE VIDEO CALL");
+		if (this.peerConnection) {
+			this.peerConnection.ontrack = null;
+			this.peerConnection.onremovetrack = null;
+			this.peerConnection.onremovestream = null;
+			this.peerConnection.onicecandidate = null;
+			this.peerConnection.oniceconnectionstatechange = null;
+			this.peerConnection.onsignalingstatechange = null;
+			this.peerConnection.onicegatheringstatechange = null;
+			this.peerConnection.onnegotiationneeded = null;
+		}
+		if (this.state.localStream) {
+			this.state.localStream.getTracks().forEach((track) => track.stop());
+		}
+		if (this.state.remoteStream) {
+			this.state.remoteStream.getTracks().forEach((track) => track.stop());
+		}
+		this.setState({ localStream: null, remoteStream: null });
+		this.peerConnection.close();
+		this.peerConnection = null;
+	}
+
+	handleICEConnectionStateChangeEvent = (event) => {
+		console.log("***HANDLE ICE CONNECTION STATE CHANGE EVENT");
+		switch (this.peerConnection.iceConnectionState) {
+			case "closed":
+			case "failed":
+				this.closeVideoCall();
+				break;
+		}
+	}
+
 	hangUpCallback = () => {
+		console.log("***HANG UP CALLBACK");
 		this.setState({ inCall: false });
+		this.closeVideoCall();
+		this.sendToServer({
+			id: this.props.userId,
+			target: this.state.curretTarget,
+			type: "hang-up"
+		});
+	}
+
+	handleRemoveTrackEvent = (event) => {
+		const stream = this.state.remoteStream;
+		const trackList = stream.getTracks();
+
+		if (trackList.length === 0) {
+			this.closeVideoCall();
+		}
+	}
+
+	reportError = (error) => {
+		console.log("***REPORT ERROR");
+		console.trace(error.name + ': ' + error.message);
 	}
 
 	render() {
-
 		return (
 			<div className="chat-app">
 				<div className='bg-secondary text-white text-center'>
 					{this.state.curretTarget !== null &&
 						<p>Connected to {this.state.users.filter((val) => {
 							return val.userId === this.state.curretTarget;
-						}).at(0).name}</p>
+						}).at(0)?.name}</p>
 					}
 				</div>
 				<div className='row-users-messages'>
@@ -161,7 +411,11 @@ class ChatApp extends React.Component {
 						/>
 				</div>
 				{this.state.inCall &&
-					<VideoPlayer hangUpCallback={this.hangUpCallback}></VideoPlayer>
+					<VideoPlayer
+						hangUpCallback={this.hangUpCallback}
+						localStream={this.state.localStream}
+						remoteStream={this.state.remoteStream}>
+					</VideoPlayer>
 				}
 				<ChatInput onSubmit={this.handleSubmit} disabled={this.state.curretTarget === null} />
 				{this.state.curretTarget === null &&

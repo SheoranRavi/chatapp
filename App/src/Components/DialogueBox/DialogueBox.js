@@ -30,7 +30,9 @@ class DialogueBox extends React.Component {
 		const sentMessage = messageBase + " sent-message";
 		return (
 			<div className="dialogue-box">
-				<div className="glyphicon glyphicon-facetime-video" onClick={this.videoCall}></div>
+				<button className="video-call-button" onClick={this.videoCall}>
+					<div className="fa fa-video-camera camera-icon"></div>
+				</button>
 					{this.props.messages.map((message, index) => {
 						// If the message is from the current user, add the 'messageThis' class to the message div
 						message.className = message.userId == this.props.userId ? sentMessage : receivedMessage;

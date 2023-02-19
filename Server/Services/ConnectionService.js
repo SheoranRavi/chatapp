@@ -97,11 +97,13 @@ export class ConnectionManager{
 		}
 	}
 
-	sendToTarget(msgString, target, id) {
+	sendToTarget(msgString, target, originClientId, sendToOrigin) {
 		var i;
 		for (i = 0; i < this.connectionArray.length; i++){
-			if (this.connectionArray[i].clientID == target || 
-				this.connectionArray[i].clientID == id) {
+			if (this.connectionArray[i].clientID == target) {
+				this.connectionArray[i].sendUTF(msgString);
+			}
+			if (sendToOrigin && this.connectionArray[i].clientID == originClientId) {
 				this.connectionArray[i].sendUTF(msgString);
 			}
 		}

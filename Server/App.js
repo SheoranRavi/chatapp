@@ -2,6 +2,7 @@ import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as http from 'http';
+import * as https from 'https';
 import * as Util from './Util.js';
 import { ConnectionManager } from './Services/ConnectionService.js';
 import { Routes } from './api-routes/routes.js';
@@ -56,19 +57,17 @@ function createHttpServer(app) {
 		cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
 	};
 
-	var httpServer = http.createServer(app);
+	var httpServer = https.createServer(options, app);
 	console.log("Created http server");
 	return httpServer;
 }
 
 function startHttpServer(httpServer, PORT) {
 	httpServer.listen(PORT);
-	// var httpsServer = https.createServer(options, app);
-	// httpsServer.listen(PORT);
 
 	var host = httpServer.address().address;
 	var port = httpServer.address().port;
-	console.log("Http Server listening at https://%s:%s", host, port);
+	console.log("Http Server listening at http://%s:%s", host, port);
 }
 
 

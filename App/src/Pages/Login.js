@@ -98,8 +98,8 @@ class Login extends React.Component {
 						<h1 className='login-header'>Login</h1>
 					</div>
 					<form onSubmit={this.handleSubmit}>
-						<input id='username' className="login-input username" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} />
-						<input id='password' className="login-input password" type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} />
+						<input id='username' className="login-input username" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} autoFocus />
+						<input id='password' className="login-input password" type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} autoFocus />
 					</form>
 				</div>
 				<ToastContainer />

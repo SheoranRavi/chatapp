@@ -2,8 +2,6 @@ import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as http from 'http';
-import * as https from 'https';
-import * as Util from './Util.js';
 import { ConnectionManager } from './Services/ConnectionService.js';
 import { Routes } from './api-routes/routes.js';
 import { staticDir, PORT } from './Model/Constants.js';
@@ -11,6 +9,7 @@ import { WebSocketService } from './Services/WebSocketService.js';
 import { ChatAppController } from './controllers/ChatAppController.js';
 import { UsersRepository } from './repository/UsersRepository.js';
 import { ChatAppService } from './Services/ChatAppService.js';
+import { AuthenticationService } from './Services/AuthenticationService.js';
 
 const container = Object.create(null);
 main();
@@ -42,7 +41,8 @@ function configureMiddlewares(app) {
 function setupServices(app) {
 	const usersRepository = new UsersRepository();
 	const chatAppService = new ChatAppService();
-	const chatAppController = new ChatAppController(usersRepository, chatAppService);
+	const authenticationService = new AuthenticationService(usersRepository);
+	const chatAppController = new ChatAppController(chatAppService, authenticationService);
 	container.usersRepository = usersRepository;
 	container.chatAppService = chatAppService;
 	const routes = new Routes();

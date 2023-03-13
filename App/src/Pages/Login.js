@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'
-import ChatApp from '../Components/ChatApp/ChatApp.js';
+import Home from '../Pages/Home.js';
+import jwt_decode from 'jwt-decode';
 import { Segment, Form, Grid, Header, Message, Dropdown } from 'semantic-ui-react';
 import './SignUp.css';
 import './Login.css';
@@ -52,14 +53,19 @@ class Login extends React.Component {
 			if (xhr.status === 200) {
 				var response = JSON.parse(xhr.responseText);
 				var loginSuccess = response.success;
-				console.dir(response);
 				console.log(loginSuccess);
 				if (loginSuccess === true) {
+					var decodedToken = jwt_decode(response.token);
+					var user = decodedToken;
+					console.log("decoded token: ", decodedToken);
 					console.log("Login successful");
+					sessionStorage.setItem('token', response.token);
 					this.setState({
-						userId: response.user.id,
+						userId: user.id,
 						isLoggedIn: true
 					});
+					sessionStorage.setItem('userId', user.id);
+					sessionStorage.setItem('username', this.state.username);
 					document.dispatchEvent(this.LoginCompleteEvent);
 				}
 				else {
@@ -89,7 +95,8 @@ class Login extends React.Component {
 
 	render() {
 		if (this.state.isLoggedIn) {
-			return <ChatApp username={this.state.username} userId={this.state.userId} />
+			return <Navigate to='/'
+			replace={true}></Navigate>
 		}
 		return (
 			<div className='main-container'>
@@ -107,7 +114,7 @@ class Login extends React.Component {
 					{this.state.isLoggedIn ? 'Log Out' : 'Login'}
 				</button>
 				<div className='button'>
-					<Link to='/signup' className='btn btn-success shadow medium'>Create New Account</Link>
+					<Link to='/signup' className='btn btn-success shadow small'>Create New Account</Link>
 				</div>
 			</div>
 		)

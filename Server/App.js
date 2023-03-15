@@ -21,7 +21,8 @@ function main() {
 	const httpServer = createHttpServer(app);
 	startHttpServer(httpServer, PORT);
 	container.connectionManager = new ConnectionManager(container.usersRepository);
-	var webSocketServer = new WebSocketService(httpServer, container.connectionManager);
+	var webSocketServer = new WebSocketService(httpServer, container.connectionManager, 
+		container.authenticationService);
 }
 
 function createApp(staticDir) {
@@ -45,6 +46,7 @@ function setupServices(app) {
 	const chatAppController = new ChatAppController(chatAppService, authenticationService);
 	container.usersRepository = usersRepository;
 	container.chatAppService = chatAppService;
+	container.authenticationService = authenticationService;
 	const routes = new Routes();
 	routes.defineRoutes(app, chatAppController);
 }

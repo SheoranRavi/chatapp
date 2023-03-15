@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-webpack": "npx webpack --watch",
     "start-server": "node Server/App.js",
-    "start-dev-server": "nodemon Server/App.js"
+    "start-dev-server": "nodemon --ignore ./App/ --ignore ./log/ Server/App.js"
   },
   "author": "Ravi Sheoran",
   "license": "ISC",

@@ -4,14 +4,13 @@ import Sidebar from '../Components/Sidebar/Sidebar.js';
 import DialogueBox from '../Components/DialogueBox/DialogueBox.js';
 import VideoPlayer from '../Components/VideoPlayer/VideoPlayer.js';
 import { Navigate } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
 import './Home.css';
+import { toast } from 'react-toastify';
 
 class Home extends React.Component {
-
 	constructor(props) {
 		super(props);
-		console.log("ChatApp props: ", props);
-        console.log(props.state);
 		this.state = {
 			messages: [],
 			users: [],
@@ -19,12 +18,12 @@ class Home extends React.Component {
 			inCall: false,
 			localStream: null,
 			remoteStream: null,
-            navigateToLogin: false,
-            username: null,
-            userId: null,
+            navigateToLogin: false
 		};
 		this.peerConnection = null;
 		this.connection = null;
+		this.userId = null;
+		this.username = null;
 		this.send = this.sendTextMesssage.bind(this);
 		this.setUsername = this.setUsername.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,12 +32,12 @@ class Home extends React.Component {
 
 	sendTextMesssage(text) {
 		console.log("***SEND");
-		console.log("Sending message to server with userId: " + this.state.userId);
+		console.log("Sending message to server with userId: " + this.userId);
 		var msg = {
 			text: text,
 			type: "message",
-			id: this.state.userId,
-			username: this.state.username,
+			id: this.userId,
+			username: this.username,
 			target: this.state.curretTarget,
 			date: Date.now()
 		};
@@ -64,7 +63,7 @@ class Home extends React.Component {
 	setUsername() {
 		console.log("***SET USERNAME");
 		var msg = {
-			name: this.state.username,
+			name: this.username,
 			date: Date.now(),
 			id: clientId,
 			type: "username"
@@ -73,23 +72,51 @@ class Home extends React.Component {
 		this.connection.send(JSON.stringify(msg));
 	}
 
-	async componentDidMount() {
-        this.getTokenFromSession();
-        await this.getStateFromSessionStorage();
+	getWsToken = async (httpToken) => {
+		try{
+			const response = await fetch('/getWSToken', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + httpToken
+				}
+			});
+			const body = await response.json();
+			if (response.status !== 200) throw Error('httpToken has expired, re-login');
+			return body.wsToken;
+		}
+		catch (e){
+			console.log('error in getWsToken');
+			console.log(e);
+			this.setState({navigateToLogin: true});
+			return "";
+		}
+	}
+
+	setupWebSocket = async () => {
+		let httpToken = this.getTokenFromSession();
+        this.getStateFromSessionStorage();
 		if (this.connection != null)
 			return;
 		var serverUrl;
 		var scheme = "ws";
-
+		var wsToken = await this.getWsToken(httpToken);
 		if (document.location.protocol === "https:") {
 			scheme += "s";
 		}
 
 		serverUrl = scheme + "://" + document.location.hostname + ":" + document.location.port;
-		var queryParams = 'userId=' + this.state.userId + '&username=' + this.state.username;
+		var queryParams = 'userId=' + this.userId + '&username=' + this.username + 
+			'&wsToken=' + wsToken;
 		serverUrl += "?" + queryParams;
 		this.connection = new WebSocket(serverUrl, "json");
 		console.log("***CREATED WEBSOCKET");
+
+		this.connection.onclose = (evt) => {
+			console.log("***ONCLOSE");
+			console.log("Connection closed.");
+			this.setState({navigateToLogin: true});
+		}
 
 		this.connection.onmessage = function (evt) {
 			console.log("***ONMESSAGE");
@@ -117,7 +144,7 @@ class Home extends React.Component {
 							name: msg.users[i].username,
 							userId: msg.users[i].id
 						};
-						if(user.userId != this.state.userId)
+						if(user.userId != this.userId)
 							newUsers.push(user);
 					}
 					this.setState({ users: newUsers });
@@ -151,6 +178,12 @@ class Home extends React.Component {
 			console.log("***ONOPEN");
 		};
 		console.log("***CREATED ONOPEN");
+	}
+
+	componentDidMount() {
+		console.log('called componentDidMount');
+
+        this.setupWebSocket();
 	}
 
 	validateCurrentTarget = () => {
@@ -260,7 +293,7 @@ class Home extends React.Component {
 			console.log("Current signalling state: " + this.peerConnection.signalingState);
 			console.log("localDescription created: " + this.peerConnection.localDescription);
 			this.sendToServer({
-				id: this.state.userId,
+				id: this.userId,
 				target: this.state.curretTarget,
 				type: "video-offer",
 				sdp: this.peerConnection.localDescription,
@@ -299,7 +332,7 @@ class Home extends React.Component {
 			.then((answer) => this.peerConnection.setLocalDescription(answer))
 			.then(() => {
 				this.sendToServer({
-					id: this.state.userId,
+					id: this.userId,
 					target: msg.id,
 					type: "video-answer",
 					sdp: this.peerConnection.localDescription,
@@ -377,7 +410,7 @@ class Home extends React.Component {
 		this.setState({ inCall: false });
 		this.closeVideoCall();
 		this.sendToServer({
-			id: this.state.userId,
+			id: this.userId,
 			target: this.state.curretTarget,
 			type: "hang-up"
 		});
@@ -398,16 +431,33 @@ class Home extends React.Component {
 	}
 
     getTokenFromSession = () => {
-        let token = sessionStorage.getItem('token');
-        if(token === undefined){
+        if(!this.tokenIsValid()){
+			console.log('token is not valid');
             this.setState({ navigateToLogin: true });
         }
+		let token = sessionStorage.getItem('token');
+		return token;
     }
+
+	tokenIsValid = () => {
+		let token = sessionStorage.getItem('token');
+		if(token === undefined || token === null){
+			return false;
+		}
+		let decoded = jwt_decode(token);
+		let exp = decoded.exp;
+		let currentTime = Math.floor(Date.now() / 1000);
+		if(exp < currentTime){
+			return false;
+		}
+		return true;
+	}
 
     getStateFromSessionStorage = async () => {
         let userId = sessionStorage.getItem('userId');
         let username = sessionStorage.getItem('username');
-        await this.setState({ userId: userId, username: username });
+		this.userId = userId;
+		this.username = username;
     }
 
 	render() {
@@ -428,7 +478,7 @@ class Home extends React.Component {
 						setCurrentTarget={this.setCurrentTarget}
 					/>
 					<DialogueBox messages={this.state.messages}
-						userId={this.state.userId} 
+						userId={this.userId} 
 						videoCallCallback={this.videoCallCallback}
 						/>
 				</div>

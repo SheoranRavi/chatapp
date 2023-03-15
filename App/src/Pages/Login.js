@@ -3,7 +3,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'
 import Home from '../Pages/Home.js';
 import jwt_decode from 'jwt-decode';
-import { Segment, Form, Grid, Header, Message, Dropdown } from 'semantic-ui-react';
 import './SignUp.css';
 import './Login.css';
 
@@ -95,8 +94,7 @@ class Login extends React.Component {
 
 	render() {
 		if (this.state.isLoggedIn) {
-			return <Navigate to='/'
-			replace={true}></Navigate>
+			return <Navigate to='/'></Navigate>
 		}
 		return (
 			<div className='main-container'>

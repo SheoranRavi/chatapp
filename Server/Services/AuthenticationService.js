@@ -2,6 +2,7 @@ import { User, UserResponse } from '../Model/User.js';
 import bcrypt from 'bcrypt';
 import { SignupResponse } from '../Model/SignUpResponse.js';
 import jwt from 'jsonwebtoken';
+import log4js from 'log4js';
 
 export class AuthenticationService{
     saltRounds = 10;
@@ -9,6 +10,7 @@ export class AuthenticationService{
 	httpTokenExpiryInSeconds = 60*60;
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
+        this.logger = log4js.getLogger('authenticationService');
     }
 
     async authenticateUser(username, password) {
@@ -16,6 +18,7 @@ export class AuthenticationService{
 
         var errorResponse = {};
         const success = await this.usersRepository.checkUser(user, errorResponse);
+        console.log('success from repo: ', success);
         var respUser = new UserResponse(null, user.username);
         var token = "";
         if (success){
@@ -29,7 +32,7 @@ export class AuthenticationService{
         }
         var response = {
             success: success,
-            error: errorResponse,
+            errorResponse: errorResponse,
             token: token
         };
         return response;
@@ -57,5 +60,19 @@ export class AuthenticationService{
         const wsJwtSecretKey = process.env.WS_TOKEN_SECRET_KEY;
         var wsToken = jwt.sign(wsPayload, wsJwtSecretKey, {expiresIn:this.wsTokenExpiryInSeconds});
         return wsToken;
+    }
+
+    async verifyWsToken(wsToken){
+        try {
+            console.log('wsToken: ' + wsToken);
+            const wsJwtSecretKey = process.env.WS_TOKEN_SECRET_KEY;
+            const payload = jwt.verify(wsToken, wsJwtSecretKey);
+            return true;
+        }
+        catch(e){
+            this.logger.error('error in verifyWsToken: ' + e.stack);
+            console.log('error in verifyWsToken: ' + e.stack);
+            return false;
+        }
     }
 }

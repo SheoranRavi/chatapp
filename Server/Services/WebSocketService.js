@@ -7,13 +7,14 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import * as Util from '../Util.js';
 export class WebSocketService {
-	constructor(httpServer, connectionManager) {
+	constructor(httpServer, connectionManager, authenticationService) {
 		this.__dirname = dirname(fileURLToPath(import.meta.url));
 		let configPath = path.join(this.__dirname, '../log4js.json');
 		log4js.configure(configPath);
 		this.logger = log4js.getLogger('WebSocketService');
 		this.httpServer = httpServer;
 		this.connectionManager = connectionManager;
+		this.authenticationService = authenticationService;
 		this.parseQueryParams = this.parseQueryParams.bind(this);
 		this.onMessage = this.onMessage.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -101,7 +102,7 @@ export class WebSocketService {
 		this.connectionManager.sendUserListToAll();
 	}
 
-	onRequest(request) {
+	async onRequest(request) {
 		try {
 			Util.Log("Handling request from: ", + request.remoteAddress);
 			if (!this.connectionManager.originIsAllowed(request.origin)) {
@@ -111,7 +112,10 @@ export class WebSocketService {
 			}
 			var resourceUrl = request.resourceURL;
 			var queryParams = resourceUrl.query;
-			if (queryParams.userId === null || queryParams.username === null) {
+			var wsTokenValid = await this.authenticationService.verifyWsToken(queryParams.wsToken);
+			
+			if (queryParams.userId === null || queryParams.username === null ||
+				wsTokenValid !== true) {
 				request.reject();
 				Util.Log("Connection from " + request.origin + " rejected.");
 				return;

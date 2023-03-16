@@ -121,8 +121,7 @@ class SignUp extends React.Component {
 	render() {
 		if (this.state.signUpSuccessful) {
 			console.log("Rerendering");
-			return <Navigate to="/" />
-			//return <ChatApp username={this.state.username} userId={this.state.userId} />
+			return <Navigate to="/login" />
 		}
 		return (
 			<div className='main-container'>
@@ -139,7 +138,7 @@ class SignUp extends React.Component {
 					<FormErrors formErrors={this.state.formErrors} />
 				</div>
 				<ToastContainer />
-				<button className="login-button" disabled={ !this.state.formValid} onClick={() => this.handleClick()}>
+				<button className="login-button shadow small" disabled={ !this.state.formValid} onClick={() => this.handleClick()}>
 					Create Account
 				</button>
 			</div>

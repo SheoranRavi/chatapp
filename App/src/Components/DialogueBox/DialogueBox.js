@@ -30,8 +30,8 @@ class DialogueBox extends React.Component {
 		const sentMessage = messageBase + " sent-message";
 		return (
 			<div className="dialogue-box">
-				<button className="video-call-button" onClick={this.videoCall}>
-					<div className="fa fa-video-camera camera-icon"></div>
+				<button className="btn btn-primary shadow video-call-button" onClick={this.videoCall}>
+					<div className="fa fa-video-camera"></div>
 				</button>
 					{this.props.messages.map((message, index) => {
 						// If the message is from the current user, add the 'messageThis' class to the message div

@@ -15,10 +15,39 @@ class VideoPlayer extends React.Component {
 		};
 		this.localVideoRef = React.createRef();
 		this.remoteVideoRef = React.createRef();
+		this.popUpRef = React.createRef();
+		this.expandRef = React.createRef();
+		this.inFullScreen = false;
 	}
 
 	hangUpCall = () => {
 		this.props.hangUpCallback();
+	}
+	
+	fullScreen = () => {
+		if(this.inFullScreen === false){
+			this.enableFullScreen();
+		}
+		else if(this.inFullScreen === true){
+			this.disableFullScreen();
+		}
+	}
+
+	enableFullScreen = () => {
+		let currElement = this.popUpRef.current;
+		var fullScreenFunc = currElement.requestFullscreen || currElement.mozRequestFullScreen
+			|| currElement.webkitRequestFullscreen || currElement.msRequestFullscreen;
+		if(fullScreenFunc){
+			fullScreenFunc.call(currElement);
+			this.inFullScreen = true;
+			this.expandRef.current.className = 'fa fa-compress';
+		}
+	}
+
+	disableFullScreen = () => {
+		document.exitFullscreen();
+		this.inFullScreen = false;
+		this.expandRef.current.className = 'fa fa-expand';
 	}
 
 	componentDidMount() {
@@ -40,11 +69,14 @@ class VideoPlayer extends React.Component {
 
 	render() {
 		return (
-			<div className='video-popup'>
+			<div className='video-popup' ref={this.popUpRef}>
 				<div className='flexChild' id="camera-container">
 					<div className="camera-box">
 						<video id="received_video" autoPlay ref={this.remoteVideoRef}></video>
 						<video id="local_video" autoPlay muted ref={this.localVideoRef}></video>
+						<button id='full-screen-button' onClick={this.fullScreen}>
+							<i className="fa fa-expand" aria-hidden="true" ref={this.expandRef}></i>
+						</button>
 						<button id='hangup-button' onClick={this.hangUpCall}>Hang Up</button>
 					</div>
 				</div>

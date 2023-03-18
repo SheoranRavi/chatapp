@@ -2,3 +2,4 @@
 
 ## ToDos
 - Introduce repository for storing users and possibly messages.
+- Add logout functionality

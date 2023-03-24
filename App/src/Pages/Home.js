@@ -6,7 +6,7 @@ import VideoPlayer from '../Components/VideoPlayer/VideoPlayer.js';
 import { Navigate } from 'react-router-dom';
 import jwt_decode from 'jwt-decode';
 import './Home.css';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 class Home extends React.Component {
 	constructor(props) {
@@ -115,7 +115,10 @@ class Home extends React.Component {
 		this.connection.onclose = (evt) => {
 			console.log("***ONCLOSE");
 			console.log("Connection closed.");
-			this.setState({navigateToLogin: true});
+			toast("Connection closed, please refresh page.", {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: false
+			});
 		}
 
 		this.connection.onmessage = function (evt) {
@@ -495,6 +498,7 @@ class Home extends React.Component {
 						<p>Choose a user to start chatting</p>
 					</div>
 				}
+				<ToastContainer/>
 			</div>
 		);
 	}

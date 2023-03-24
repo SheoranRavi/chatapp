@@ -14,10 +14,10 @@ export class AuthenticationService{
     }
 
     async authenticateUser(username, password) {
-        const user = new User(null, username.toLowerCase(), password);
+        const user = new User(null, username.trim().toLowerCase(), password);
 
         var errorResponse = {};
-        const success = await this.usersRepository.checkUser(user, errorResponse);
+        const success = await this.usersRepository.loginUser(user, errorResponse);
         console.log('success from repo: ', success);
         var respUser = new UserResponse(null, user.username);
         var token = "";
@@ -39,14 +39,14 @@ export class AuthenticationService{
     }
 
     async signupUser(username, password){
-        const user = new User(null, username.toLowerCase(), null);
+        const user = new User(null, username.trim().toLowerCase(), null);
         await bcrypt.hash(password, this.saltRounds)
             .then((hash) => { user.password = hash })
             .catch(ex => {
                 this.logger.error('error in bcrypt: ' + ex.stack);
             });
         var errorResponse = {};
-        const success = this.usersRepository.addUser(user, errorResponse);
+        const success = await this.usersRepository.addUser(user, errorResponse);
         const response = new SignupResponse(success, errorResponse);
         return response;
     }

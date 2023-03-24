@@ -62,7 +62,6 @@ export class ConnectionManager{
 			type: messageType.UserList,
 			users: []
 		};
-		console.log(messageType.UserList);
 		const usersSet = new Set();
 		var i;
 		// add users to the list

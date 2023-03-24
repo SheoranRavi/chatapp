@@ -59,11 +59,17 @@ class VideoPlayer extends React.Component {
 	}
 
 	addTracks = () => {
-		if (this.props.localStream) {
-			this.localVideoRef.current.srcObject = this.props.localStream;
+		try {
+			if (this.props.localStream) {
+				this.localVideoRef.current.srcObject = this.props.localStream;
+			}
+			if (this.props.remoteStream) {
+				this.remoteVideoRef.current.srcObject = this.props.remoteStream;
+			}
 		}
-		if (this.props.remoteStream) {
-			this.remoteVideoRef.current.srcObject = this.props.remoteStream;
+		catch(err){
+			console.log(err);
+			alert(err);
 		}
 	}
 

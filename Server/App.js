@@ -10,11 +10,19 @@ import { ChatAppController } from './controllers/ChatAppController.js';
 import { UsersRepository } from './repository/UsersRepository.js';
 import { ChatAppService } from './Services/ChatAppService.js';
 import { AuthenticationService } from './Services/AuthenticationService.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import log4js from 'log4js';
+import * as dotenv from 'dotenv';
 
 const container = Object.create(null);
+var __dirname = dirname(fileURLToPath(import.meta.url));
+console.log('dirname: ' + __dirname);
 main();
 
 function main() {
+	configureEnvironment();
+	configureLog4Js();
 	const app = createApp(staticDir);
 	configureMiddlewares(app);
 	setupServices(app);
@@ -23,6 +31,17 @@ function main() {
 	container.connectionManager = new ConnectionManager(container.usersRepository);
 	var webSocketServer = new WebSocketService(httpServer, container.connectionManager, 
 		container.authenticationService);
+}
+
+function configureEnvironment(){
+	let configPath = path.join(__dirname, './log4js.json');
+	console.log('config path: ' + configPath);
+	log4js.configure(configPath);
+}
+
+function configureLog4Js(){
+	let envConfigPath = path.join(__dirname, './config.env');
+	dotenv.config({path: envConfigPath});
 }
 
 function createApp(staticDir) {

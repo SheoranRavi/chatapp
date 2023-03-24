@@ -9,12 +9,6 @@ import * as dotenv from 'dotenv';
 
 export class ChatAppController{
 	constructor(chatAppService, authenticationService) {
-		console.log(process.env);
-		this.__dirname = dirname(fileURLToPath(import.meta.url));
-		let configPath = path.join(this.__dirname, '../log4js.json');
-		log4js.configure(configPath);
-		let envConfigPath = path.join(this.__dirname, '../config.env');
-		dotenv.config({path: envConfigPath});
 		this.logger = log4js.getLogger('controller');
 		this.chatAppService = chatAppService;
 		this.authenticationService = authenticationService;

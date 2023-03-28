@@ -463,12 +463,31 @@ class Home extends React.Component {
 		this.username = username;
     }
 
+	logout = () => {
+		sessionStorage.removeItem('token');
+		sessionStorage.removeItem('userId');
+		sessionStorage.removeItem('username');
+		this.setState({ navigateToLogin: true });
+	}
+
 	render() {
         if(this.state.navigateToLogin === true){
             return <Navigate to='/login' />
         }
 		return (
 			<div className="chat-app">
+				<nav className='navbar navbar-expand-lg navbar-light bg-light'>
+					<div className='container-fluid'>
+						<div className='navbar-header'>
+							<a className='navbar-brand' href='/'>Chat App</a>
+						</div>
+						<ul className='nav navbar-nav navbar-right'>
+							<li className='nav-item'>
+								<a className='nav-link btn btn-primary' onClick={this.logout} href='/login'>Logout</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
 				<div className='bg-secondary text-white text-center'>
 					{this.state.curretTarget !== null &&
 						<p>Connected to {this.state.users.filter((val) => {

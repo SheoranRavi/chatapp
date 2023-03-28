@@ -2,5 +2,4 @@
 
 ## ToDos
 - Store Messages as well
-- Add logout functionality
 - add end to end encryption on messages

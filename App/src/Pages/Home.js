@@ -481,6 +481,13 @@ class Home extends React.Component {
 						<div className='navbar-header'>
 							<a className='navbar-brand' href='/'>Chat App</a>
 						</div>
+						<div className='navbar-header'>
+							{this.state.curretTarget &&
+							<a className='navbar-brand'>Connected to {this.state.users.filter((val) => {
+										return val.userId === this.state.curretTarget;
+									}).at(0)?.name}</a>
+							}
+						</div>
 						<ul className='nav navbar-nav navbar-right'>
 							<li className='nav-item'>
 								<a className='nav-link btn btn-primary' onClick={this.logout} href='/login'>Logout</a>
@@ -488,13 +495,6 @@ class Home extends React.Component {
 						</ul>
 					</div>
 				</nav>
-				<div className='bg-secondary text-white text-center'>
-					{this.state.curretTarget !== null &&
-						<p>Connected to {this.state.users.filter((val) => {
-							return val.userId === this.state.curretTarget;
-						}).at(0)?.name}</p>
-					}
-				</div>
 				<div className='row-users-messages'>
 					<Sidebar activeUsers={this.state.users}
 						setCurrentTarget={this.setCurrentTarget}

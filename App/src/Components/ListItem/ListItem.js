@@ -9,11 +9,16 @@ class ListItem extends React.Component {
 		};
 	}
 
-	handleClick = () => {
-		this.setState((prevState) => ({
+	handleClick = async () => {
+		await this.setState((prevState) => ({
 			active: !prevState.active,
 		}));
-		this.props.setCurrentTarget(this.props.user.userId);
+		if(this.state.active === true){
+			this.props.setCurrentTarget(this.props.user.userId);
+		}
+		else{
+			this.props.setCurrentTarget(null);
+		}
 		const listItem = document.getElementById("listItem");
 		listItem.classList.toggle("active");
 	}

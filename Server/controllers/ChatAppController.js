@@ -75,4 +75,10 @@ export class ChatAppController{
 			res.status(401).json({success: false, wsToken: ""});
 		}
 	}
+
+	async getFavicon(req, res){
+		const INDEX = '/public/myfavicon.ico';
+		const iconPath = path.resolve(path.join(staticDir, INDEX));
+		res.sendFile(iconPath);
+	}
 }

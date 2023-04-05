@@ -30,7 +30,7 @@ class DialogueBox extends React.Component {
 		const sentMessage = messageBase + " sent-message";
 		return (
 			<div className="dialogue-box">
-				<button className="btn btn-primary shadow video-call-button" onClick={this.videoCall}>
+				<button className="btn btn-primary shadow-sm video-call-button bg-blue rounded" onClick={this.videoCall}>
 					<div className="fa fa-video-camera"></div>
 				</button>
 					{this.props.messages.map((message, index) => {

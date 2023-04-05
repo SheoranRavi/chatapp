@@ -124,23 +124,28 @@ class SignUp extends React.Component {
 			return <Navigate to="/login" />
 		}
 		return (
-			<div className='main-container'>
-				<div>
+			<div>
+				<nav className='navbar navbar-expand-lg navbar-light bg-light'>
+					<a className='navbar-brand shadow btn btn-secondary btn-lg' href='/login'>Back To Login</a>
+				</nav>
+				<div className='main-container'>
 					<div>
-						<h1 className='login-header'>Signup</h1>
+						<div>
+							<h1 className='login-header'>Signup</h1>
+						</div>
+						<form onSubmit={this.handleSubmit}>
+							<input id='username' className="login-input username" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} />
+							<input id='password' className="login-input password" type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} />
+						</form>
 					</div>
-					<form onSubmit={this.handleSubmit}>
-						<input id='username' className="login-input username" type="text" placeholder="Username" value={this.state.username} onChange={this.handleUsernameChange} />
-						<input id='password' className="login-input password" type="password" placeholder="Password" value={this.state.password} onChange={this.handlePasswordChange} />
-					</form>
+					<div className='panel panel-default'>
+						<FormErrors formErrors={this.state.formErrors} />
+					</div>
+					<ToastContainer />
+					<button className="login-button shadow small" disabled={ !this.state.formValid} onClick={() => this.handleClick()}>
+						Create Account
+					</button>
 				</div>
-				<div className='panel panel-default'>
-					<FormErrors formErrors={this.state.formErrors} />
-				</div>
-				<ToastContainer />
-				<button className="login-button shadow small" disabled={ !this.state.formValid} onClick={() => this.handleClick()}>
-					Create Account
-				</button>
 			</div>
 		)
 	}

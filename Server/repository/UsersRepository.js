@@ -32,8 +32,26 @@ export class UsersRepository {
 			HashedPassword: "HashedPassword",
 		};
 		this.logger = log4js.getLogger("UsersRepository");
+	}
+
+	async testConnection(){
+		try{
+			let sql = 'SELECT 1 + 1 AS solution';
+			const [rows, fields] = await this.promisePool.execute(sql);
+			if(rows && rows.length > 0){
+				return true;
+			}
+			return false;
+		}catch(err){
+			console.log('error in testConnection: ', err);
+			return false;
+		}
+	}
+
+	init() {
 		this.createDatabaseIfNotExists();
 		this.createTableIFNotExists();
+		return true;
 	}
 
 	createDatabaseIfNotExists() {

@@ -11,5 +11,6 @@ export class Routes{
 		app.get('/login', chatAppController.getRoot);
 		app.get('/signup', chatAppController.getRoot);
 		app.get('/getWSToken', chatAppController.getWSToken);
+		app.get('/myfavicon.ico', chatAppController.getFavicon);
 	}	
 }

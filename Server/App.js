@@ -8,6 +8,7 @@ import { staticDir, PORT } from './Model/Constants.js';
 import { WebSocketService } from './Services/WebSocketService.js';
 import { ChatAppController } from './controllers/ChatAppController.js';
 import { UsersRepository } from './repository/UsersRepository.js';
+import { UsersRepositoryInMemory } from './repository/UsersRepositoryInMemory.js';
 import { ChatAppService } from './Services/ChatAppService.js';
 import { AuthenticationService } from './Services/AuthenticationService.js';
 import { dirname } from 'path';
@@ -20,12 +21,12 @@ var __dirname = dirname(fileURLToPath(import.meta.url));
 console.log('dirname: ' + __dirname);
 main();
 
-function main() {
+async function main() {
 	configureEnvironment();
 	configureLog4Js();
 	const app = createApp(staticDir);
 	configureMiddlewares(app);
-	setupServices(app);
+	await setupServices(app);
 	const httpServer = createHttpServer(app);
 	startHttpServer(httpServer, PORT);
 	container.connectionManager = new ConnectionManager(container.usersRepository);
@@ -58,8 +59,8 @@ function configureMiddlewares(app) {
 	app.use(express.static(staticDir));
 }
 
-function setupServices(app) {
-	const usersRepository = new UsersRepository();
+async function setupServices(app) {
+	const usersRepository = await getUsersRepository();
 	const chatAppService = new ChatAppService();
 	const authenticationService = new AuthenticationService(usersRepository);
 	const chatAppController = new ChatAppController(chatAppService, authenticationService);
@@ -68,6 +69,17 @@ function setupServices(app) {
 	container.authenticationService = authenticationService;
 	const routes = new Routes();
 	routes.defineRoutes(app, chatAppController);
+}
+
+async function getUsersRepository(){
+	let repo = new UsersRepository();
+	var dbAvailable = await repo.testConnection();
+	if(dbAvailable == false){
+		repo = new UsersRepositoryInMemory();
+		console.log("creating in memory repository");
+	}
+	repo.init();
+	return repo;
 }
 
 function createHttpServer(app) {

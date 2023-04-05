@@ -490,7 +490,7 @@ class Home extends React.Component {
 						</div>
 						<ul className='nav navbar-nav navbar-right'>
 							<li className='nav-item'>
-								<a className='nav-link btn btn-primary' onClick={this.logout} href='/login'>Logout</a>
+								<a className='nav-link btn btn-primary shadow bg-white rounded' onClick={this.logout} href='/login'>Logout</a>
 							</li>
 						</ul>
 					</div>
